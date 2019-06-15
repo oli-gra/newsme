@@ -40,7 +40,7 @@ const getTags = (text, callback) =>
       'text': text
    }, function (err, res) {
       if (err === null) {
-         console.log(flattenObj(res))
+         callback(flattenObj(res.string))
       }
    })
 
