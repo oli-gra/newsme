@@ -43,7 +43,7 @@ const InputNews = ({ out }) => {
       <form
          onSubmit={handleSubmit}
       >
-         <TextField
+         <input
             id="outlined-name"
             label='Headline'
             className={classes.textField}

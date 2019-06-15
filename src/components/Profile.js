@@ -33,12 +33,12 @@ const Profile = ({ fuser, signOut, postUser }) => {
 
    const url = 'http://localhost:3003' // Node server
 
-   const [displayName, setName] = useState(null)
-   const [email, setEmail] = useState(null)
-   const [location, setLoc] = useState(null)
-   const [photoUrl, setPic] = useState(null)
+   const [displayName, setName] = useState('')
+   const [email, setEmail] = useState('')
+   const [location, setLoc] = useState('')
+   const [photoUrl, setPic] = useState('')
 
-   useEffect(() => { if (!email) { getUser() } })
+   useEffect(() => { if (email === '') { getUser() } })
 
    const getUser = () => {
       axios.get(url + '/user?uid=' + fuser.uid)
@@ -76,7 +76,15 @@ const Profile = ({ fuser, signOut, postUser }) => {
                margin="normal"
                variant="outlined"
             />
-            <div> {email}{fuser.emailVerified ? '✓' : null}</div>
+            <TextField
+               disabled
+               id="outlined-disabled"
+               label={email}
+               // defaultValue={email}
+               className={classes.textField}
+               margin="normal"
+               variant="outlined"
+            />
             <TextField
                id="outlined-name"
                label='location'

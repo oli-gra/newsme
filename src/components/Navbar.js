@@ -8,9 +8,6 @@ import { fade, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 
 const useStyles = makeStyles(theme => ({
-   grow: {
-      flexGrow: 1,
-   },
    search: {
       position: 'relative',
       borderRadius: theme.shape.borderRadius,
@@ -18,8 +15,6 @@ const useStyles = makeStyles(theme => ({
       '&:hover': {
          backgroundColor: fade(theme.palette.common.white, 0.25),
       },
-      marginRight: theme.spacing(2),
-      marginLeft: 0,
       width: '100%',
       [theme.breakpoints.up('sm')]: {
          marginLeft: theme.spacing(3),
@@ -60,15 +55,18 @@ const useStyles = makeStyles(theme => ({
    },
 }))
 
-const Navbar = ({ popmenu }) => {
+const Navbar = ({ popmenu, searchNews }) => {
 
    const classes = useStyles();
 
-   const [search, setSearch] = useState(null)
+   const [search, setSearch] = useState('')
 
-   const handleChange = event =>
+   const handleChange = event => {
       setSearch(event.target.value)
-
+      if (event.target.value.length > 2) {
+         searchNews(event.target.value)
+      }
+   }
 
    return (
       <div className='navbar'>
@@ -77,8 +75,9 @@ const Navbar = ({ popmenu }) => {
             className={classes.menuButton}
             color="inherit"
             aria-label="Open drawer"
+            onClick={popmenu}
          >
-            <span onClick={popmenu}><MenuIcon /></span>
+            <MenuIcon />
          </IconButton>
 
          <div className={classes.search}>
@@ -86,7 +85,7 @@ const Navbar = ({ popmenu }) => {
                <SearchIcon />
             </div>
             <InputBase
-               placeholder="Find news or user"
+               placeholder="Find news or users"
                classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,
