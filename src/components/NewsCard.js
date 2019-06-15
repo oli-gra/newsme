@@ -44,35 +44,37 @@ const NewsCard = ({ news, handlePostBox, handleNewsLike }) => {
          {title}
          <div className='newscardfoot'>
          </div>
-         <div>
-            <BottomNavigation
-               // value={value}
-               // onChange={handleChange}
-               className={classes.root}>
-               <Badge
+         <BottomNavigation
+            // value={value}
+            // onChange={handleChange}
+            className={classes.root}>
+
+            <BottomNavigationAction
+               label="Like"
+               onClick={handleNewsLike}
+               value={news.likes.length}
+               icon={<Badge
                   className={classes.margin}
                   badgeContent={news.likes.length}
-                  color="secondary">
-                  <BottomNavigationAction
-                     label="Like"
-                     onClick={handleNewsLike}
-                     value={news.likes.length}
-                     icon={<FavoriteIcon />} />
-               </Badge>
+                  color="secondary"><FavoriteIcon /></Badge>} />
 
-               <BottomNavigationAction
-                  label="Post"
-                  onClick={handlePostBox}
-                  value={news.posts.length}
-                  icon={<ChatBubbleIcon />} />
 
-               <BottomNavigationAction
-                  label="User"
-                  value="folder"
-                  icon={<AcountBoxIcon />} />
-            </BottomNavigation>
+            <BottomNavigationAction
+               label="Post"
+               onClick={handlePostBox}
+               value={news.posts.length}
+               icon={<Badge
+                  className={classes.margin}
+                  badgeContent={news.posts.length}
+                  color="secondary"><ChatBubbleIcon />
+               </Badge>} />
 
-         </div>
+            <BottomNavigationAction
+               label="User"
+               value="folder"
+               icon={<AcountBoxIcon />} />
+         </BottomNavigation>
+
       </div>
       // style={style}
    )

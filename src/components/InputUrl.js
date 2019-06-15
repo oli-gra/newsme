@@ -32,7 +32,6 @@ const InputUrl = ({ out }) => {
       out(url)
    }
 
-
    return (
 
       <form className={classes.container} noValidate autoComplete="off">

@@ -4,30 +4,79 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const assert = require('assert')
 const { MongoClient, ObjectId } = require('mongodb')
+const axios = require('axios')
+
+// load Aylien concept extraction NLP
+const secrets = require('../secrets')
+const AYLIENTextAPI = require('aylien_textapi')
+const tag = new AYLIENTextAPI({
+   application_id: secrets.aylienId,
+   application_key: secrets.aylienKey
+})
 
 // server settings
 const app = express()
-const uri = require('../secrets')
-// const routes = express.Router()
 const PORT = 3003
-const url = uri
+const url = secrets.uri
 const dbName = 'newsme'
 const client = new MongoClient(url, { useNewUrlParser: true })
 
+const flattenObj = obj =>
+   Object.assign(
+      {},
+      ...function _flatten(o) {
+         return [].concat(...Object.keys(o)
+            .map(k =>
+               typeof o[k] === 'object' ?
+                  _flatten(o[k]) :
+                  ({ [k]: o[k] })
+            )
+         );
+      }(obj)
+   )
+
+const getTags = (text, callback) =>
+   tag.concepts({
+      'text': text
+   }, function (err, res) {
+      if (err === null) {
+         console.log(flattenObj(res))
+      }
+   })
+
+const getUrl = (newsUrl, callback) => {
+   const api = secrets.linkpreview
+   const url = `http://api.linkpreview.net/?key=${api}&q=${newsUrl}`
+   axios.get(url).then(res => callback(res.data))
+
+}
+
 const insertNews = function (db, news, callback) {
    const collection = db.collection('news')
+   console.log(getTags(news.title))
    collection.insertOne({
       uid: news.uid,
       title: news.title,
       description: news.description,
       image: news.image,
+      url: news.url,
       date: new Date,
       likes: [],
       posts: [],
+      tags: []
    }, function (err, result) {
       assert.equal(err, null)
       callback(result)
    })
+}
+
+function newsTitleIndex(db, callback) {
+   const collection = db.collection('news')
+   collection.createIndex(
+      { title: "text" }, function (err, result) {
+         callback(result)
+      }
+   )
 }
 
 const insertUser = function (db, user, callback) {
@@ -63,15 +112,6 @@ const insertPost = function (db, post, callback) {
          likes: []
       }, function (err, result) {
          assert.equal(err, null)
-         // let collection = db.collection('news')
-         // collection.updateOne(
-         //    { _id: result.ops[0]._id },
-         //    { $push: { posts: result.id } },
-         //    function (err, result) {
-         //       assert.equal(err, null)
-         //       assert.equal(1, result.result.posts)
-         //
-         //    })
          callback(result)
       }
    )
@@ -100,10 +140,20 @@ const likeNews = function (db, uid, nid, callback) {
 
 const findNews = function (db, user, callback) {
    const collection = db.collection('news')
-   collection.find({ uid: user.uid }).toArray(function (err, docs) {
-      assert.equal(err, null)
-      callback(docs)
-   })
+   collection.find({ uid: user.uid })
+      .toArray(function (err, docs) {
+         assert.equal(err, null)
+         callback(docs)
+      })
+}
+
+const searchNews = function (db, search, callback) {
+   const news = db.collection('news')
+   news.find({ '$text': { '$search': search } })
+      .toArray(function (err, docs) {
+         assert.equal(err, null)
+         callback(docs)
+      })
 }
 
 const findUser = function (db, uid, callback) {
@@ -131,7 +181,22 @@ client.connect(err => {
    app.use(cors())
    app.use(bodyParser.json())
 
+   // indicies                 <- BLOCK ->
+   newsTitleIndex(db, function (res) {
+      console.log(`✅ news title index ${res}`)
+   })
+
    // routes                   <- BLOCK ->
+
+   app.get('/search', (req, res) => {
+      searchNews(db, req.query.q, found => {
+         if (found) {
+            res.status(200)
+            res.send(found)
+         } else { res.status(404) }
+
+      })
+   })
 
    app.post('/users', (req, res) => {
       insertUser(db, req.body, user => {
@@ -162,6 +227,16 @@ client.connect(err => {
       findNews(db, req.query, news => {
          res.status(200)
          res.send(news)
+      })
+   })
+
+   app.post('/news/url', (req, res) => {
+      getUrl(req.query.url, news => {
+         news.uid = req.query.uid
+         insertNews(db, news, done => {
+            res.status(200)
+            res.send(done)
+         })
       })
    })
 

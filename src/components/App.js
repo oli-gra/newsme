@@ -11,7 +11,7 @@ import * as firebase from 'firebase/app'
 import 'firebase/auth'
 // import "firebase/firestore"
 import 'firebase/storage'
-import firebaseConfig from '../firebaseConfig'
+import config from '../config'
 
 // Import test framework
 import Enzyme from 'enzyme'
@@ -43,7 +43,7 @@ const url = 'http://localhost:3003' // Node server
 Enzyme.configure({ adapter: new Adapter() })
 
 // Init firebase
-firebase.initializeApp(firebaseConfig)
+firebase.initializeApp(config.firebase)
 const firebaseAppAuth = firebase.auth()
 // const providers = { googleProvider: new firebase.auth.GoogleAuthProvider(), }
 
@@ -54,6 +54,14 @@ const App = ({ user, signOut }) => {
   const [newsposts, setNewsposts] = useState(null)
   const [popmenu, setPopmenu] = useState(false)
   const [fetched, setFetched] = useState(false)
+  const [found, setFound] = useState([])
+
+  useEffect(() => {
+    if (user && !fetched) {
+      setFetched(true)
+      getNews()
+    }
+  })
 
   useEffect(() => {
     const email = window.localStorage.getItem('emailForSignIn')
@@ -66,11 +74,7 @@ const App = ({ user, signOut }) => {
       .catch(error => console.log(error))) {
       return navigate('/')
     }
-    if (user && !fetched) {
-      setFetched(true)
-      getNews()
-    }
-  })
+  }, [])
 
   // API                  <- BLOCK ->
 
@@ -95,11 +99,20 @@ const App = ({ user, signOut }) => {
       .catch(err => console.log(err))
   }
 
+  const searchNews = search => {
+    axios.get(url + `/search?q=${search}`)
+      .then(res => setFound(res.data))
+  }
+
   const postNews = news =>
     axios.post(url + '/news', news)
       .then(res => setNews([...news, res.data.ops[0]]))
       .catch(err => console.log(err))
 
+  const postUrl = newsUrl =>
+    axios.post(url + `/news/url?url=${newsUrl}&uid=${user.uid}`)
+      .then(res => setNews([...news, res.data.ops[0]]))
+      .catch(err => console.log(err))
 
   const getNews = () =>
     axios.get(url + '/news?uid=' + user.uid)
@@ -107,9 +120,8 @@ const App = ({ user, signOut }) => {
 
   // Helpers       <- BLOCK ->
 
-  const handleNews = news => {
-    news.uid = user.uid
-    postNews(news)
+  const handleUrl = url => {
+    postUrl(url)
     return navigate('/')
   }
 
@@ -119,14 +131,12 @@ const App = ({ user, signOut }) => {
     imageRef.put(file)
       .then(() => console.log(`✅ uploaded ${imageRef.fullPath}`))
       .then(() => storageRef.child(file.name).getDownloadURL()
-        .then(url => {
-          let news = {
-            title: headline,
-            image: url,
-            uid: user.uid
-          }
-          postNews(news)
-        }))
+        .then(url => postNews({
+          title: headline,
+          image: url,
+          uid: user.uid
+        })
+        ))
     return navigate('/')
   }
 
@@ -164,9 +174,11 @@ const App = ({ user, signOut }) => {
   }
 
   let routes
+  let showNews
+  found.length > 0 ? showNews = found : showNews = news
   user ? routes = {
     '/': () => <News
-      news={news}
+      news={showNews}
       handlePostBox={handlePostBox}
       handleNewsLike={updateNews}
     />,
@@ -179,7 +191,7 @@ const App = ({ user, signOut }) => {
       signOut={signOut}
     />,
     '/new': () => <AddNews
-      handleNews={handleNews}
+      handleUrl={handleUrl}
       handleFile={handleFile}
     />
   } : routes = {
@@ -190,7 +202,9 @@ const App = ({ user, signOut }) => {
   const routeResult = useRoutes(routes)
   return (
     <>
-      <Navbar popmenu={handlePopMenu} />
+      <Navbar
+        searchNews={searchNews}
+        popmenu={handlePopMenu} />
       {postboxComponent}
       {popmenuComponent}
       {routeResult || <NotFoundPage user={user} />}
