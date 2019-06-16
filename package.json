@@ -10,7 +10,6 @@
     "firebase": "^6.1.1",
     "hookrouter": "^1.2.3",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
     "react-with-firebase-auth": "^1.0.3"
   },

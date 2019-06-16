@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import axios from 'axios'
 import Post from './Post'
+import List from '@material-ui/core/List';
+
 
 import '../style/app.css'
 
 const useStyles = makeStyles(theme => ({
-   container: {
-      display: 'flex',
-      flexWrap: 'wrap',
-   },
    textField: {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
    },
    dense: {
-      marginTop: theme.spacing(2),
+      marginTop: theme.spacing(1),
    },
-   menu: {
-      width: 200,
+   list: {
+      marginBottom: theme.spacing(2),
    }
 }))
 
@@ -32,10 +31,24 @@ const PostBox = ({ newsId, userId, handlePostBox }) => {
    const [posts, setPosts] = useState([])
    const [post, setPost] = useState('')
 
+   const node = React.useRef()
+
+   const handleClick = e => {
+      if (!node.current.contains(e.target)) {
+         return handlePostBox()
+      }
+   }
+
+   useEffect(() => {
+      document.addEventListener("mousedown", handleClick)
+      return () => {
+         document.removeEventListener("mousedown", handleClick)
+      }
+   }, [])
 
    useEffect(() => {
       if (newsId) { getPosts(newsId) }
-   })
+   }, [])
 
    const getPosts = newsId =>
       axios.get(url + '/posts?nid=' + newsId)
@@ -59,10 +72,8 @@ const PostBox = ({ newsId, userId, handlePostBox }) => {
       }
    }
 
-
    return (
-      <div className='postbox'>
-         <h1>Posts</h1>
+      <div className='postbox' ref={node}>
          <TextField
             id="outlined-name"
             label='post'
@@ -74,12 +85,12 @@ const PostBox = ({ newsId, userId, handlePostBox }) => {
             margin="normal"
             variant="outlined"
          />
-         {
-            posts.length > 0 ? posts.map(post => <Post
-               key={post._id}
-               post={post}
-            />) : 'Be the first'
-         }
+         <List className={classes.list}>
+            {posts.map(post => <Post id={post.id} post={post} />)}
+         </List>
+         {/* <ListSubheader className={classes.subheader}>Today</ListSubheader>} */}
+
+
       </div>)
 }
 

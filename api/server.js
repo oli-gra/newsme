@@ -21,26 +21,12 @@ const url = secrets.uri
 const dbName = 'newsme'
 const client = new MongoClient(url, { useNewUrlParser: true })
 
-const flattenObj = obj =>
-   Object.assign(
-      {},
-      ...function _flatten(o) {
-         return [].concat(...Object.keys(o)
-            .map(k =>
-               typeof o[k] === 'object' ?
-                  _flatten(o[k]) :
-                  ({ [k]: o[k] })
-            )
-         );
-      }(obj)
-   )
-
 const getTags = (text, callback) =>
    tag.concepts({
       'text': text
    }, function (err, res) {
       if (err === null) {
-         callback(flattenObj(res.string))
+         console.log(res)
       }
    })
 
@@ -53,7 +39,6 @@ const getUrl = (newsUrl, callback) => {
 
 const insertNews = function (db, news, callback) {
    const collection = db.collection('news')
-   console.log(getTags(news.title))
    collection.insertOne({
       uid: news.uid,
       title: news.title,
@@ -88,12 +73,12 @@ const insertUser = function (db, user, callback) {
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
-            location: user.location
+            location: user.location,
+            follow: []
          }
       },
       { upsert: true },
       function (err, result) {
-         console.log(result)
          assert.equal(err, null)
          callback(result)
       }

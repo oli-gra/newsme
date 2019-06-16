@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { makeStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
@@ -6,7 +7,6 @@ import Badge from '@material-ui/core/Badge'
 import FavoriteIcon from '@material-ui/icons/FavoriteBorder'
 import AcountBoxIcon from '@material-ui/icons/AccountBox'
 import ChatBubbleIcon from '@material-ui/icons/ChatBubbleOutline'
-
 
 const useStyles = makeStyles(theme => ({
    margin: {
@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
    },
 }))
 
-const NewsCard = ({ news, handlePostBox, handleNewsLike }) => {
+const NewsCard = ({ news, getNews, handlePostBox, handleNewsLike }) => {
 
    const classes = useStyles();
 
@@ -45,8 +45,6 @@ const NewsCard = ({ news, handlePostBox, handleNewsLike }) => {
          <div className='newscardfoot'>
          </div>
          <BottomNavigation
-            // value={value}
-            // onChange={handleChange}
             className={classes.root}>
 
             <BottomNavigationAction
@@ -57,7 +55,6 @@ const NewsCard = ({ news, handlePostBox, handleNewsLike }) => {
                   className={classes.margin}
                   badgeContent={news.likes.length}
                   color="secondary"><FavoriteIcon /></Badge>} />
-
 
             <BottomNavigationAction
                label="Post"
@@ -71,12 +68,11 @@ const NewsCard = ({ news, handlePostBox, handleNewsLike }) => {
 
             <BottomNavigationAction
                label="User"
-               value="folder"
+               onClick={() => getNews(news.uid)}
+               value={news.uid}
                icon={<AcountBoxIcon />} />
          </BottomNavigation>
-
       </div>
-      // style={style}
    )
 }
 

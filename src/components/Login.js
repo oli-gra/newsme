@@ -59,8 +59,9 @@ const Login = ({ handleLogin }) => {
                variant="outlined"
             />
             <Button
-               variant="outlined"
-               size="medium"
+               variant="contained"
+               color="secondary"
+               size='large'
                className={classes.button}
                type="submit"
                onClick={handleSubmit}>

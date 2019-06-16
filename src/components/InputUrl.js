@@ -1,7 +1,8 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
    container: {
@@ -16,22 +17,16 @@ const useStyles = makeStyles(theme => ({
       marginTop: theme.spacing(2),
    },
    menu: {
-      width: 200,
+      width: 300,
    },
 }))
 
 
-const InputUrl = ({ out }) => {
+const InputUrl = ({ handleUrl }) => {
+
+   let url = React.useRef()
 
    const classes = useStyles()
-
-   const [url, setUrl] = React.useState('')
-
-   const handleSubmit = e => {
-      e.preventDefault()
-      out(url)
-   }
-
    return (
 
       <form className={classes.container} noValidate autoComplete="off">
@@ -39,19 +34,26 @@ const InputUrl = ({ out }) => {
             id="outlined-name"
             label='News url'
             className={classes.textField}
-            value={url}
-            onChange={e => setUrl(e.target.value)}
+            onChange={e => url = e.target.value}
             margin="normal"
             variant="outlined"
          />
-         <Button
-            variant="outlined"
-            size="medium"
-            className={classes.button}
-            type="submit"
-            onClick={handleSubmit}>
-            add news
-         </Button>
+         <ExpansionPanelActions>
+            <div className={classes.column} />
+            <div className='rightbutton'>
+               <Button
+                  variant="contained"
+                  color="secondary"
+                  size='large'
+                  className={classes.button}
+                  onClick={() => handleUrl(url)}
+               >
+                  Save
+               </Button>
+            </div>
+
+
+         </ExpansionPanelActions>
       </form>
 
    );

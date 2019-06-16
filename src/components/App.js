@@ -26,10 +26,11 @@ import Login from './Login'
 import PostBox from './PostBox'
 import PopMenu from './PopMenu'
 import NotFoundPage from './NotFoundPage'
+import GetLink from './GetLink'
 
 // Import style
 import '../style/app.css'
-import '../style/darkmode'
+import '../style/dark'
 
 //  Servers                <- BLOCK ->
 const actionCodeSettings = {
@@ -56,6 +57,8 @@ const App = ({ user, signOut }) => {
   const [fetched, setFetched] = useState(false)
   const [found, setFound] = useState([])
 
+  const email = window.localStorage.getItem('emailForSignIn')
+
   useEffect(() => {
     if (user && !fetched) {
       setFetched(true)
@@ -64,7 +67,6 @@ const App = ({ user, signOut }) => {
   })
 
   useEffect(() => {
-    const email = window.localStorage.getItem('emailForSignIn')
     if (!email && firebase.auth().isSignInWithEmailLink(window.location.href)) {
       return navigate('/login')
     }
@@ -74,7 +76,7 @@ const App = ({ user, signOut }) => {
       .catch(error => console.log(error))) {
       return navigate('/')
     }
-  }, [])
+  })
 
   // API                  <- BLOCK ->
 
@@ -89,7 +91,8 @@ const App = ({ user, signOut }) => {
         location: ''
       }
     }
-    axios.post(url + '/users', puser).catch(err => console.log(err))
+    axios.post(url + '/users', puser)
+      .catch(err => console.log(err))
   }
 
   // like news
@@ -118,6 +121,10 @@ const App = ({ user, signOut }) => {
     axios.get(url + '/news?uid=' + user.uid)
       .then(res => setNews(res.data))
 
+  const getUsersNews = uid =>
+    axios.get(url + '/news?uid=' + uid)
+      .then(res => setFound(res.data))
+
   // Helpers       <- BLOCK ->
 
   const handleUrl = url => {
@@ -125,14 +132,14 @@ const App = ({ user, signOut }) => {
     return navigate('/')
   }
 
-  const handleFile = (file, headline) => {
+  const handleFile = (file, title) => {
     const storageRef = firebase.storage().ref()
     const imageRef = storageRef.child(file.name)
     imageRef.put(file)
       .then(() => console.log(`✅ uploaded ${imageRef.fullPath}`))
       .then(() => storageRef.child(file.name).getDownloadURL()
         .then(url => postNews({
-          title: headline,
+          title: title,
           image: url,
           uid: user.uid
         })
@@ -143,8 +150,9 @@ const App = ({ user, signOut }) => {
   const handleLogin = email => {
     firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
       .then(() => window.localStorage.setItem('emailForSignIn', email))
+      .then(() => navigate('/'))
       .catch(error => console.log(error))
-    return navigate('/')
+
   }
 
   const handlePostBox = newsId => {
@@ -155,11 +163,15 @@ const App = ({ user, signOut }) => {
   const handlePopMenu = () =>
     setPopmenu(!popmenu)
 
-
-  // Render                <- BLOCK ->
+  // Render logic               <- BLOCK ->
 
   let postboxComponent
   let popmenuComponent
+  let getlinkComponent
+  let navbarComponent
+  let routes
+  let showNews
+
   if (postbox) {
     postboxComponent = <PostBox
       handlePostBox={handlePostBox}
@@ -170,44 +182,57 @@ const App = ({ user, signOut }) => {
   if (popmenu) {
     popmenuComponent = <PopMenu
       handlePopMenu={handlePopMenu}
+      signOut={signOut}
     />
+  }
+  if (email && !user) {
+    getlinkComponent = <GetLink />
+  }
+  found.length > 0 ? showNews = found : showNews = news
+
+  // Routing               <- BLOCK ->
+
+  if (user) {
+    routes = {
+      '/': () => <News
+        getNews={getUsersNews}
+        news={showNews}
+        handlePostBox={handlePostBox}
+        handleNewsLike={updateNews}
+      />,
+      '/login': () => <Login
+        handleLogin={handleLogin}
+      />,
+      '/profile': () => <Profile
+        postUser={postUser}
+        fuser={user}
+      />,
+      '/new': () => <AddNews
+        handleUrl={handleUrl}
+        handleFile={handleFile}
+      />
+    }
+    navbarComponent = <Navbar
+      searchNews={searchNews}
+      popmenu={handlePopMenu} />
+  } else {
+    routes = {
+      '/login': () => <Login
+        handleLogin={handleLogin}
+      />
+    }
   }
 
-  let routes
-  let showNews
-  found.length > 0 ? showNews = found : showNews = news
-  user ? routes = {
-    '/': () => <News
-      news={showNews}
-      handlePostBox={handlePostBox}
-      handleNewsLike={updateNews}
-    />,
-    '/login': () => <Login
-      handleLogin={handleLogin}
-    />,
-    '/profile': () => <Profile
-      postUser={postUser}
-      fuser={user}
-      signOut={signOut}
-    />,
-    '/new': () => <AddNews
-      handleUrl={handleUrl}
-      handleFile={handleFile}
-    />
-  } : routes = {
-    '/login': () => <Login
-      handleLogin={handleLogin}
-    />
-  }
   const routeResult = useRoutes(routes)
   return (
     <>
-      <Navbar
-        searchNews={searchNews}
-        popmenu={handlePopMenu} />
+      {getlinkComponent}
+      {navbarComponent}
       {postboxComponent}
       {popmenuComponent}
-      {routeResult || <NotFoundPage user={user} />}
+      {routeResult || <NotFoundPage
+        handleLogin={handleLogin}
+        user={user} />}
     </>
   )
 }

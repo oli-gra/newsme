@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { makeStyles } from '@material-ui/core/styles'
+
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import ExpansionPanel from '@material-ui/core/ExpansionPanel'
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
+import Typography from '@material-ui/core/Typography'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
-   container: {
-      display: 'flex',
-      flexWrap: 'wrap',
-   },
    textField: {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
@@ -16,18 +18,12 @@ const useStyles = makeStyles(theme => ({
    dense: {
       marginTop: theme.spacing(2),
    },
-   menu: {
-      width: 200,
-   },
    button: {
       margin: theme.spacing(1),
-   },
-   input: {
-      display: 'none',
-   },
+   }
 }))
 
-const Profile = ({ fuser, signOut, postUser }) => {
+const Profile = ({ fuser, postUser }) => {
 
    const classes = useStyles()
 
@@ -59,60 +55,64 @@ const Profile = ({ fuser, signOut, postUser }) => {
          location: location,
          photoUrl: photoUrl,
       }
-      console.log(user)
       postUser(user)
    }
 
    return (
-      <div className='profile' >
-         <form onSubmit={saveInput}>
-            <div>{photoUrl}</div>
-            <TextField
-               id="outlined-name"
-               label='name'
-               className={classes.textField}
-               value={displayName}
-               onChange={event => setName(event.target.value)}
-               margin="normal"
-               variant="outlined"
-            />
-            <TextField
-               disabled
-               id="outlined-disabled"
-               label={email}
-               // defaultValue={email}
-               className={classes.textField}
-               margin="normal"
-               variant="outlined"
-            />
-            <TextField
-               id="outlined-name"
-               label='location'
-               className={classes.textField}
-               value={location}
-               onChange={event => setLoc(event.target.value)}
-               margin="normal"
-               variant="outlined"
-            />
-            <Button
-               variant="outlined"
-               size="medium"
-               className={classes.button}
-               type="submit">
-               Save
-         </Button>
-            <Button
-               variant="outlined"
-               size="medium"
-               className={classes.button}
-               onClick={() => signOut}
-            >
-               Sign out
-         </Button>
-
-         </form>
+      <div className='profilecontainer'>
+         <div className='profile'>
+            <ExpansionPanel defaultExpanded>
+               <ExpansionPanelSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1c-content"
+                  id="panel1c-header">
+                  <div className={classes.column}>
+                     <Typography className={classes.heading}>Personal info</Typography>
+                  </div>
+               </ExpansionPanelSummary>
+               <ExpansionPanelDetails className={classes.details}>
+                  <form onSubmit={saveInput}>
+                     <div>{photoUrl}</div>
+                     <TextField
+                        id="outlined-name"
+                        label='name'
+                        className={classes.textField}
+                        value={displayName}
+                        onChange={event => setName(event.target.value)}
+                        margin="normal"
+                        variant="outlined"
+                     />
+                     <TextField
+                        disabled
+                        id="outlined-disabled"
+                        label={email}
+                        className={classes.textField}
+                        margin="normal"
+                        variant="outlined"
+                     />
+                     <TextField
+                        id="outlined-name"
+                        label='location'
+                        className={classes.textField}
+                        value={location}
+                        onChange={event => setLoc(event.target.value)}
+                        margin="normal"
+                        variant="outlined"
+                     />
+                     <Button
+                        variant="contained"
+                        color="secondary"
+                        size='large'
+                        className={classes.button}
+                        type="submit">
+                        Save
+                  </Button>
+                  </form>
+               </ExpansionPanelDetails>
+            </ExpansionPanel>
+         </div>
       </div>
-   );
+   )
 }
 
-export default Profile;
+export default Profile
