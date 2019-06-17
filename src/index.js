@@ -4,7 +4,6 @@ import App from './components/App'
 import * as serviceWorker from './serviceWorker'
 import * as firebase from 'firebase/app'
 
-
 // style theme
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'

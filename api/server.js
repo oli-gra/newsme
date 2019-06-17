@@ -21,6 +21,10 @@ const url = secrets.uri
 const dbName = 'newsme'
 const client = new MongoClient(url, { useNewUrlParser: true })
 
+const tagsHelper = () => {
+
+}
+
 const getTags = (text, callback) =>
    tag.concepts({
       'text': text
@@ -39,6 +43,7 @@ const getUrl = (newsUrl, callback) => {
 
 const insertNews = function (db, news, callback) {
    const collection = db.collection('news')
+   getTags(news.title)
    collection.insertOne({
       uid: news.uid,
       title: news.title,
