@@ -1,9 +1,10 @@
-import React from 'react';
+import React from 'react'
+import Login from './Login'
 
-const NotFoundPage = user =>
+const NotFoundPage = ({ user, handleLogin }) =>
    <>
-      <h1>Loading...</h1>
-      {user && user.validEmail ? <></> : <></>}
+
+      {user && user.validEmail ? <><h1>Loading...</h1></> : <Login handleLogin={handleLogin} />}
    </>
 
 export default NotFoundPage

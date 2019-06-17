@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react'
 
-
 const algoliasearch = require('../')
 const client = algoliasearch('latency', '6be0576ff61c053d5f9a3225e2a90f76')
 const index = client.initIndex('contacts')
-
 
 class Search extends PureComponent {
 

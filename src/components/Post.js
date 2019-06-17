@@ -1,17 +1,24 @@
 import React from 'react'
 
-const Post = ({ post }) =>
-   <>
-      <div className='post'>
-         <div className='postcontent'>
-            {post.content}
-         </div>
-         <div className='postmeta'>
-            <div className='postlikes'>{post.likes ? post.likes.length : 0}</div>
-            <div className='postdate'>{post.date.slice(0, 10)}</div>
-            <div className='postuser'></div>
-         </div>
-      </div>
-   </>
+// styling
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import FavoriteIcon from '@material-ui/icons/FavoriteBorder'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import IconButton from '@material-ui/core/IconButton';
+
+const Post = ({ post }) => {
+   return (
+      <ListItem>
+         <ListItemText secondary={post.content} />
+         <ListItemSecondaryAction>
+            <IconButton edge="end" aria-label="Delete">
+               <FavoriteIcon />
+            </IconButton>
+         </ListItemSecondaryAction>
+      </ListItem>
+   )
+}
+
 
 export default Post

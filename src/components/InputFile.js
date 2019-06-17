@@ -26,28 +26,32 @@ const useStyles = makeStyles(theme => ({
    },
 }))
 
-const InputNews = ({ out }) => {
+const InputNews = ({ handleFile }) => {
 
    const classes = useStyles()
 
    const handleSubmit = e => {
       e.preventDefault()
-      out(fileInput.current.files[0], headline.current.value)
+      handleFile(file.current.files[0], title)
       e.target.reset()
    }
 
-   const fileInput = React.createRef()
-   const headline = React.createRef()
+   const file = React.useRef()
+   let title = React.useRef()
 
    return (
       <form
+         className={classes.container}
+         noValidate
+         autoComplete="off"
          onSubmit={handleSubmit}
       >
-         <input
+         <TextField
             id="outlined-name"
-            label='Headline'
+            label='title'
             className={classes.textField}
-            ref={headline}
+            onChange={e => title = e.target.value}
+            ref={title}
             margin="normal"
             variant="outlined"
          />
@@ -56,23 +60,24 @@ const InputNews = ({ out }) => {
             className={classes.input}
             id="outlined-button-file"
             type="file"
-            ref={fileInput}
+            ref={file}
          />
          <label htmlFor="outlined-button-file">
             <Button
-               variant="outlined"
+               variant="contained" color="secondary" className={classes.button}
+               size='large'
                component="span"
-               className={classes.button}>
-               Image
+            >Image
+         </Button>
+            <Button
+               variant="contained"
+               color="secondary"
+               className={classes.button}
+               size='large'
+               type='submit'
+            >Save
          </Button>
          </label>
-         <Button
-            variant="outlined"
-            size="medium"
-            className={classes.button}
-            type="submit">
-            Add
-         </Button>
       </form>
    );
 }
