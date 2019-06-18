@@ -60,6 +60,7 @@ const Profile = ({ fuser, postUser }) => {
 
    return (
       <div className='profilecontainer'>
+
          <div className='profile'>
             <ExpansionPanel defaultExpanded>
                <ExpansionPanelSummary
