@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 // styling
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
@@ -6,7 +6,6 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import FavoriteIcon from '@material-ui/icons/FavoriteBorder'
-import AcountBoxIcon from '@material-ui/icons/AccountBox'
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Badge from '@material-ui/core/Badge'
@@ -29,33 +28,47 @@ const Post = ({ post, getNews, updatePost, numPosts }) => {
 
    let icon
    let dots
+   let summary
    if (post.content.length > 50) {
       icon = <ExpandMoreIcon />
       dots = '...'
    }
+   if (expanded !== post.id) {
+      summary = <ExpansionPanelSummary
+         expandIcon={icon}
+         className='postheader'
+      >{post.content.slice(0, 40)}{dots}
+      </ExpansionPanelSummary>
+   }
+
+   const node = React.useRef()
+
+   useEffect(() => {
+      const handleClick = e => {
+         if (!node.current.contains(e.target)) {
+            setExpanded(false)
+         }
+      }
+      document.addEventListener("mousedown", handleClick)
+      return () => {
+         document.removeEventListener("mousedown", handleClick)
+      }
+   }, [])
 
    return (
       <ExpansionPanel
+         ref={node}
          className={classes.root}
          square
          onChange={handleChange(post.id)}
          expanded={expanded === post.id}>
-         <ExpansionPanelSummary
-            expandIcon={icon}
-            className='postheader'
-         >{post.content.slice(0, 40)}{dots}
-         </ExpansionPanelSummary>
+         {summary}
          <ExpansionPanelDetails className='postcontent'>
-            {post.content.slice(40)}
+            {post.content}
          </ExpansionPanelDetails>
          <div className='postlikes'>
             <BottomNavigation
                className={classes.root}>
-               <BottomNavigationAction
-                  label="User"
-                  onClick={() => getNews(post.uid)}
-                  value={post.uid}
-                  icon={<AcountBoxIcon />} />
                <BottomNavigationAction
                   label="Like"
                   onClick={() => {

@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import Post from './Post'
-
-import '../style/app.css'
+import TextField from '@material-ui/core/TextField'
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
    textField: {
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
-      width: '92%',
+      width: '75%',
    },
    dense: {
       marginTop: theme.spacing(1),
-   }
+   },
+   button: {
+      marginTop: theme.spacing(3)
+   },
+   input: {
+      display: 'none',
+   },
 }))
 
 const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
@@ -26,6 +32,8 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
    const [post, setPost] = useState('')
 
    const node = React.useRef()
+   const file = React.useRef()
+
 
    useEffect(() => {
       const handleClick = e => {
@@ -33,7 +41,6 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
             return handlePostBox()
          }
       }
-
       document.addEventListener("mousedown", handleClick)
       return () => {
          document.removeEventListener("mousedown", handleClick)
@@ -89,7 +96,23 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
             margin="normal"
             variant="outlined"
          />
-
+         <input
+            accept="image/*"
+            className={classes.input}
+            id="outlined-button-file"
+            type="file"
+            ref={file}
+         />
+         <label htmlFor="outlined-button-file">
+            <Fab
+               variant="contained"
+               size="small"
+               color="secondary"
+               component="span"
+               className={classes.button}>
+               <AddIcon />
+            </Fab>
+         </label>
          {posts.map(post => <Post
             key={post._id}
             post={post}

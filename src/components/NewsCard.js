@@ -15,6 +15,9 @@ const useStyles = makeStyles(theme => ({
    padding: {
       padding: theme.spacing(0, 1),
    },
+   root: {
+      backgroundColor: 'rgba(30,30,30,0.8)',
+   },
 }))
 
 const NewsCard = ({ news, getNews, handlePostBox, handleNewsLike }) => {
@@ -27,23 +30,15 @@ const NewsCard = ({ news, getNews, handlePostBox, handleNewsLike }) => {
       setHover(!hover)
 
    let title
+   let footer
    const style = {
       backgroundImage: 'url(' + news.image + ')'
    }
-   if (hover) {
+   if (hover && news._id !== 1) {
       title = <div className='newscardtitle'>{news.title}</div>
    }
-
-   return (
-      <div
-         className='newscard'
-         style={style}
-         onMouseEnter={handleHover}
-         onMouseLeave={handleHover}
-      >
-         {title}
-         <div className='newscardfoot'>
-         </div>
+   if (news._id !== 1) {
+      footer =
          <BottomNavigation
             className={classes.root}>
 
@@ -72,6 +67,19 @@ const NewsCard = ({ news, getNews, handlePostBox, handleNewsLike }) => {
                value={news.uid}
                icon={<AcountBoxIcon />} />
          </BottomNavigation>
+   }
+
+   return (
+      <div
+         className='newscard'
+         style={style}
+         onMouseEnter={handleHover}
+         onMouseLeave={handleHover}
+      >
+         {title}
+         <div className='newscardfoot'>
+         </div>
+         {footer}
       </div>
    )
 }

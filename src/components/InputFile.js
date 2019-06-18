@@ -1,7 +1,9 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
    container: {
@@ -63,12 +65,13 @@ const InputNews = ({ handleFile }) => {
             ref={file}
          />
          <label htmlFor="outlined-button-file">
-            <Button
-               variant="contained" color="secondary" className={classes.button}
-               size='large'
+            <Fab
+               variant="contained"
+               color="secondary"
                component="span"
-            >Image
-         </Button>
+               className={classes.button}>
+               <AddIcon />
+            </Fab>
             <Button
                variant="contained"
                color="secondary"

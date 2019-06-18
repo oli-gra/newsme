@@ -97,8 +97,8 @@ const App = ({ user, signOut }) => {
     }
   }, [email, postUser])
 
-  // API                  <- BLOCK ->
-
+  const getLikes = () =>
+    axios.get(`${url}/likes?uid=${user.uid}`)
 
 
   // like news
@@ -209,6 +209,7 @@ const App = ({ user, signOut }) => {
       '/profile': () => <Profile
         postUser={postUser}
         fuser={user}
+        getLikes={getLikes}
       />,
       '/new': () => <AddNews
         handleUrl={handleUrl}

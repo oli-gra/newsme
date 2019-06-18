@@ -8,6 +8,14 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import AcountBoxIcon from '@material-ui/icons/AccountBox'
+import FavoriteIcon from '@material-ui/icons/FavoriteBorder'
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Badge from '@material-ui/core/Badge'
+
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
@@ -20,10 +28,29 @@ const useStyles = makeStyles(theme => ({
    },
    button: {
       margin: theme.spacing(1),
+   },
+   card: {
+      display: 'flex',
+   },
+   details: {
+      display: 'flex',
+      flexDirection: 'column',
+   },
+   content: {
+      flex: '1 0 auto',
+   },
+   cover: {
+      width: 151,
+   },
+   avatar: {
+      display: 'flex',
+      alignItems: 'center',
+      paddingLeft: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
    }
 }))
 
-const Profile = ({ fuser, postUser }) => {
+const Profile = ({ fuser, postUser, getLikes }) => {
 
    const classes = useStyles()
 
@@ -33,18 +60,22 @@ const Profile = ({ fuser, postUser }) => {
    const [email, setEmail] = useState('')
    const [location, setLoc] = useState('')
    const [photoUrl, setPic] = useState('')
+   const [likes, setLikes] = useState('')
 
-   useEffect(() => { if (email === '') { getUser() } })
+   useEffect(() => {
 
-   const getUser = () => {
       axios.get(url + '/user?uid=' + fuser.uid)
          .then(res => {
             setName(res.data.displayName)
-            setEmail(res.data.email)
+            setEmail(fuser.email)
             setLoc(res.data.location)
             setPic(res.data.photoUrl)
          })
-   }
+
+      getLikes()
+         .then(res => setLikes(res.data.likes))
+         .catch(err => console.log(err))
+   }, [getLikes, fuser.email, fuser.uid])
 
    const saveInput = e => {
       e.preventDefault()
@@ -60,6 +91,38 @@ const Profile = ({ fuser, postUser }) => {
 
    return (
       <div className='profilecontainer'>
+
+         <div className='profile'>
+            <Card className={classes.card}>
+               <Typography className={classes.heading}>Personal stats</Typography>
+
+               <div className={classes.avatar}>
+                  {photoUrl !== '' ?
+                     <Fab
+                        color="secondary"
+                        aria-label="Add"
+                        className={classes.button}>
+                        <AddIcon />
+                     </Fab> : <img src={photoUrl} alt='avatar' />}
+               </div>
+               <div className={classes.details}>
+                  <CardContent>
+                     <span className={classes.button}>
+                        <Badge
+                           badgeContent={likes}
+                           color="secondary">
+                           <FavoriteIcon /></Badge>
+                     </span>
+                     <span className={classes.button}>
+                        <Badge
+                           badgeContent={null}
+                           color="secondary">
+                           <AcountBoxIcon /></Badge>
+                     </span>
+                  </CardContent>
+               </div>
+            </Card>
+         </div>
 
          <div className='profile'>
             <ExpansionPanel defaultExpanded>
