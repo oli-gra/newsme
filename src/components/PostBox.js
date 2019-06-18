@@ -4,62 +4,65 @@ import axios from 'axios'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Post from './Post'
-import List from '@material-ui/core/List';
-
 
 import '../style/app.css'
 
 const useStyles = makeStyles(theme => ({
    textField: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+      width: '92%',
    },
    dense: {
       marginTop: theme.spacing(1),
-   },
-   list: {
-      marginBottom: theme.spacing(2),
    }
 }))
 
-const PostBox = ({ newsId, userId, handlePostBox }) => {
-
-   const url = 'http://localhost:3003' // Node server
+const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
 
    const classes = useStyles()
-
+   const url = 'http://localhost:3003' // Node server
    const [posts, setPosts] = useState([])
    const [post, setPost] = useState('')
 
    const node = React.useRef()
 
-   const handleClick = e => {
-      if (!node.current.contains(e.target)) {
-         return handlePostBox()
-      }
-   }
-
    useEffect(() => {
+      const handleClick = e => {
+         if (!node.current.contains(e.target)) {
+            return handlePostBox()
+         }
+      }
+
       document.addEventListener("mousedown", handleClick)
       return () => {
          document.removeEventListener("mousedown", handleClick)
       }
-   }, [])
+   }, [handlePostBox, newsId])
 
    useEffect(() => {
       if (newsId) { getPosts(newsId) }
-   }, [])
+   }, [newsId])
 
    const getPosts = newsId =>
       axios.get(url + '/posts?nid=' + newsId)
          .then(res => setPosts(res.data))
          .catch(err => console.log(err))
 
-   const postPost = post =>
-      axios.post(url + '/posts/new', post).then(res => res.data.ops[0])
+   const updatePost = pid =>
+      axios.patch(`${url}/posts?pid=${pid}&uid=${userId}`)
+         .then(res => {
+            const likedPost = res.data.value
+            const altPosts = posts.filter(post => post._id !== likedPost._id)
+            altPosts.unshift(likedPost)
+            setPosts(altPosts)
+         })
 
-   const handleChange = post =>
-      setPost(post)
+   const postPost = post =>
+      axios.post(url + '/posts/new', post)
+         .then(res => res.data.ops[0])
+         .then(post => setPosts([...posts, post]))
+         .catch(err => console.log(err))
 
    const handleEnter = e => {
       if (e.keyCode === 13) {
@@ -68,7 +71,8 @@ const PostBox = ({ newsId, userId, handlePostBox }) => {
             uid: userId,
             nid: newsId,
          }
-         postPost(post).then(post => setPosts([...posts, post]))
+         setPost('')
+         postPost(post)
       }
    }
 
@@ -80,16 +84,18 @@ const PostBox = ({ newsId, userId, handlePostBox }) => {
             className={classes.textField}
             type='text'
             value={post}
-            onChange={event => handleChange(event.target.value)}
+            onChange={event => setPost(event.target.value)}
             onKeyDown={event => handleEnter(event)}
             margin="normal"
             variant="outlined"
          />
-         <List className={classes.list}>
-            {posts.map(post => <Post id={post.id} post={post} />)}
-         </List>
-         {/* <ListSubheader className={classes.subheader}>Today</ListSubheader>} */}
 
+         {posts.map(post => <Post
+            key={post._id}
+            post={post}
+            getNews={getNews}
+            updatePost={updatePost}
+         />)}
 
       </div>)
 }

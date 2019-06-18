@@ -8,25 +8,24 @@ import ListItemText from '@material-ui/core/ListItemText'
 import HomeIcon from '@material-ui/icons/Home'
 import ExitToApp from '@material-ui/icons/ExitToApp'
 import AccountBox from '@material-ui/icons/AccountBox'
-import PlusOne from '@material-ui/icons/PlusOne'
-
 
 const PopMenu = ({ handlePopMenu, signOut }) => {
 
    const node = React.useRef()
 
    useEffect(() => {
+
+      const handleClick = e => {
+         if (!node.current.contains(e.target)) {
+            return handlePopMenu()
+         }
+      }
+
       document.addEventListener("mousedown", handleClick)
       return () => {
          document.removeEventListener("mousedown", handleClick)
       }
-   }, [])
-
-   const handleClick = e => {
-      if (!node.current.contains(e.target)) {
-         return handlePopMenu()
-      }
-   }
+   }, [handlePopMenu])
 
    return (
       <div className='popmenu' ref={node}>

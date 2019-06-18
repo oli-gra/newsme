@@ -21,14 +21,21 @@ const url = secrets.uri
 const dbName = 'newsme'
 const client = new MongoClient(url, { useNewUrlParser: true })
 
-const getTags = (text, callback) =>
-   tag.concepts({
-      'text': text
-   }, function (err, res) {
-      if (err === null) {
-         console.log(res)
-      }
-   })
+const getTags = (text) => {
+   return new Promise((resolve, reject) =>
+      tag.concepts({
+         'text': text
+      }, function (err, res) {
+         if (!err) {
+            const concepts = res.concepts
+            const keys = Object.keys(concepts)
+            resolve(keys.map(key => concepts[key].surfaceForms[0].string))
+         } else {
+            reject(err)
+         }
+      })
+   )
+}
 
 const getUrl = (newsUrl, callback) => {
    const api = secrets.linkpreview
@@ -39,29 +46,23 @@ const getUrl = (newsUrl, callback) => {
 
 const insertNews = function (db, news, callback) {
    const collection = db.collection('news')
-   collection.insertOne({
-      uid: news.uid,
-      title: news.title,
-      description: news.description,
-      image: news.image,
-      url: news.url,
-      date: new Date,
-      likes: [],
-      posts: [],
-      tags: []
-   }, function (err, result) {
-      assert.equal(err, null)
-      callback(result)
-   })
-}
-
-function newsTitleIndex(db, callback) {
-   const collection = db.collection('news')
-   collection.createIndex(
-      { title: "text" }, function (err, result) {
-         callback(result)
-      }
-   )
+   getTags(news.title)
+      .then(data => {
+         collection.insertOne({
+            uid: news.uid,
+            title: news.title,
+            description: news.description,
+            image: news.image,
+            url: news.url,
+            date: new Date,
+            likes: [],
+            posts: [],
+            tags: data
+         }, function (err, result) {
+            assert.equal(err, null)
+            callback(result)
+         })
+      })
 }
 
 const insertUser = function (db, user, callback) {
@@ -123,6 +124,20 @@ const likeNews = function (db, uid, nid, callback) {
    )
 }
 
+const likePost = function (db, pid, uid, callback) {
+   console.log(pid, uid)
+   const collection = db.collection('posts')
+   collection.findOneAndUpdate(
+      { _id: ObjectId(pid) },
+      { $addToSet: { likes: uid } },
+      { returnOriginal: false },
+      function (err, result) {
+         assert.equal(err, null)
+         callback(result)
+      }
+   )
+}
+
 const findNews = function (db, user, callback) {
    const collection = db.collection('news')
    collection.find({ uid: user.uid })
@@ -134,11 +149,47 @@ const findNews = function (db, user, callback) {
 
 const searchNews = function (db, search, callback) {
    const news = db.collection('news')
-   news.find({ '$text': { '$search': search } })
+   news.find({ $text: { $search: search } })
       .toArray(function (err, docs) {
          assert.equal(err, null)
          callback(docs)
       })
+}
+
+const countNewsLikes = function (db, uid, callback) {
+   const news = db.collection('news')
+   news.aggregate([
+      {
+         $match: { uid: uid },
+      },
+      {
+         $project: {
+            item: 1,
+            likes: { $cond: { if: { $isArray: "$likes" }, then: { $size: "$likes" }, else: null } }
+         }
+      }
+   ]).toArray(function (err, docs) {
+      assert.equal(err, null)
+      callback(docs.map(doc => doc.likes).reduce((a, b) => a + b))
+   })
+}
+
+const countPostLikes = function (db, uid, likes, callback) {
+   const posts = db.collection('posts')
+   posts.aggregate([
+      {
+         $match: { uid: uid },
+      },
+      {
+         $project: {
+            item: 1,
+            likes: { $cond: { if: { $isArray: "$likes" }, then: { $size: "$likes" }, else: null } }
+         }
+      }
+   ]).toArray(function (err, docs) {
+      assert.equal(err, null)
+      callback(docs.map(doc => doc.likes).reduce((a, b) => a + b))
+   })
 }
 
 const findUser = function (db, uid, callback) {
@@ -167,9 +218,12 @@ client.connect(err => {
    app.use(bodyParser.json())
 
    // indicies                 <- BLOCK ->
-   newsTitleIndex(db, function (res) {
-      console.log(`✅ news title index ${res}`)
-   })
+   const news = db.collection('news')
+   news.createIndex(
+      {
+         title: "text",
+         tags: "text"
+      })
 
    // routes                   <- BLOCK ->
 
@@ -178,7 +232,7 @@ client.connect(err => {
          if (found) {
             res.status(200)
             res.send(found)
-         } else { res.status(404) }
+         } else { res.sendStatus(404) }
 
       })
    })
@@ -200,7 +254,7 @@ client.connect(err => {
    app.get('/posts', (req, res) => {
       findPosts(db, req.query, posts => {
          if (posts === null) {
-            res.status(404)
+            res.sendStatus(404)
          } else {
             res.status(200)
             res.send(posts)
@@ -212,6 +266,13 @@ client.connect(err => {
       findNews(db, req.query, news => {
          res.status(200)
          res.send(news)
+      })
+   })
+
+   app.patch('/posts', (req, res) => {
+      likePost(db, req.query.pid, req.query.uid, post => {
+         res.status(200)
+         res.send(post)
       })
    })
 
@@ -250,6 +311,15 @@ client.connect(err => {
       removeDocument(db, news => {
          res.status(200)
          res.send(news)
+      })
+   })
+
+   app.get('/likes', (req, res) => {
+      countNewsLikes(db, req.query.uid, newslikes => {
+         countPostLikes(db, req.query.uid, newslikes, postlikes => {
+            res.status(200)
+            res.send({ "likes": `${newslikes + postlikes}` })
+         })
       })
    })
 

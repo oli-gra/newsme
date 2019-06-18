@@ -59,26 +59,16 @@ const App = ({ user, signOut }) => {
 
   const email = window.localStorage.getItem('emailForSignIn')
 
+  const getNews = () =>
+    axios.get(url + '/news?uid=' + user.uid)
+      .then(res => setNews(res.data))
+
   useEffect(() => {
     if (user && !fetched) {
       setFetched(true)
       getNews()
     }
-  })
-
-  useEffect(() => {
-    if (!email && firebase.auth().isSignInWithEmailLink(window.location.href)) {
-      return navigate('/login')
-    }
-    if (email && firebase.auth().signInWithEmailLink(email, window.location.href)
-      .then(() => window.localStorage.removeItem('emailForSignIn'))
-      .then(() => postUser())
-      .catch(error => console.log(error))) {
-      return navigate('/')
-    }
-  })
-
-  // API                  <- BLOCK ->
+  }, [user, fetched, getNews])
 
   const postUser = puser => {
     if (!puser) {
@@ -94,6 +84,22 @@ const App = ({ user, signOut }) => {
     axios.post(url + '/users', puser)
       .catch(err => console.log(err))
   }
+
+  useEffect(() => {
+    if (!email && firebase.auth().isSignInWithEmailLink(window.location.href)) {
+      return navigate('/login')
+    }
+    if (email && firebase.auth().signInWithEmailLink(email, window.location.href)
+      .then(() => window.localStorage.removeItem('emailForSignIn'))
+      .then(() => postUser())
+      .then(() => navigate('/'))
+      .catch(error => console.log(error))) {
+    }
+  }, [email, postUser])
+
+  // API                  <- BLOCK ->
+
+
 
   // like news
   const updateNews = nid => {
@@ -116,10 +122,6 @@ const App = ({ user, signOut }) => {
     axios.post(url + `/news/url?url=${newsUrl}&uid=${user.uid}`)
       .then(res => setNews([...news, res.data.ops[0]]))
       .catch(err => console.log(err))
-
-  const getNews = () =>
-    axios.get(url + '/news?uid=' + user.uid)
-      .then(res => setNews(res.data))
 
   const getUsersNews = uid =>
     axios.get(url + '/news?uid=' + uid)
@@ -177,6 +179,7 @@ const App = ({ user, signOut }) => {
       handlePostBox={handlePostBox}
       userId={user.uid}
       newsId={newsposts}
+      getNews={getNews}
     />
   }
   if (popmenu) {
@@ -219,7 +222,10 @@ const App = ({ user, signOut }) => {
     routes = {
       '/login': () => <Login
         handleLogin={handleLogin}
-      />
+      />,
+      '/': () => <NotFoundPage
+        handleLogin={handleLogin}
+        user={user} />
     }
   }
 
