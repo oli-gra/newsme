@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import AcountBoxIcon from '@material-ui/icons/AccountBox'
 import FavoriteIcon from '@material-ui/icons/FavoriteBorder'
-import Fab from '@material-ui/core/Fab';
+import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -23,31 +23,15 @@ const useStyles = makeStyles(theme => ({
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
    },
-   dense: {
-      marginTop: theme.spacing(2),
-   },
    button: {
       margin: theme.spacing(1),
    },
-   card: {
-      display: 'flex',
+   heading: {
+      marginTop: theme.spacing(1),
    },
-   details: {
-      display: 'flex',
-      flexDirection: 'column',
+   column: {
+
    },
-   content: {
-      flex: '1 0 auto',
-   },
-   cover: {
-      width: 151,
-   },
-   avatar: {
-      display: 'flex',
-      alignItems: 'center',
-      paddingLeft: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
-   }
 }))
 
 const Profile = ({ fuser, postUser, getLikes }) => {
@@ -91,11 +75,11 @@ const Profile = ({ fuser, postUser, getLikes }) => {
 
    return (
       <div className='profilecontainer'>
-
-         <div className='profile'>
-            <Card className={classes.card}>
+         <Card className='profile'>
+            <div className={classes.heading}>
                <Typography className={classes.heading}>Personal stats</Typography>
-
+            </div>
+            <div className={classes.column}>
                <div className={classes.avatar}>
                   {photoUrl !== '' ?
                      <Fab
@@ -121,60 +105,57 @@ const Profile = ({ fuser, postUser, getLikes }) => {
                      </span>
                   </CardContent>
                </div>
-            </Card>
-         </div>
+            </div>
+         </Card>
 
-         <div className='profile'>
-            <ExpansionPanel defaultExpanded>
-               <ExpansionPanelSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1c-content"
-                  id="panel1c-header">
-                  <div className={classes.column}>
-                     <Typography className={classes.heading}>Personal info</Typography>
-                  </div>
-               </ExpansionPanelSummary>
-               <ExpansionPanelDetails className={classes.details}>
-                  <form onSubmit={saveInput}>
-                     <div>{photoUrl}</div>
-                     <TextField
-                        id="outlined-name"
-                        label='name'
-                        className={classes.textField}
-                        value={displayName}
-                        onChange={event => setName(event.target.value)}
-                        margin="normal"
-                        variant="outlined"
-                     />
-                     <TextField
-                        disabled
-                        id="outlined-disabled"
-                        label={email}
-                        className={classes.textField}
-                        margin="normal"
-                        variant="outlined"
-                     />
-                     <TextField
-                        id="outlined-name"
-                        label='location'
-                        className={classes.textField}
-                        value={location}
-                        onChange={event => setLoc(event.target.value)}
-                        margin="normal"
-                        variant="outlined"
-                     />
-                     <Button
-                        variant="contained"
-                        color="secondary"
-                        size='large'
-                        className={classes.button}
-                        type="submit">
-                        Save
+         <ExpansionPanel defaultExpanded className='profile'>
+            <ExpansionPanelSummary
+               expandIcon={<ExpandMoreIcon />}
+               aria-controls="panel1c-content"
+               id="panel1c-header"
+               className='profilerow'>
+               <Typography className={classes.heading}>Personal info</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails className='profilecolumn'>
+               <form onSubmit={saveInput}>
+                  <div>{photoUrl}</div>
+                  <TextField
+                     id="outlined-name"
+                     label='name'
+                     className={classes.textField}
+                     value={displayName}
+                     onChange={event => setName(event.target.value)}
+                     margin="normal"
+                     variant="outlined"
+                  />
+                  <TextField
+                     disabled
+                     id="outlined-disabled"
+                     label={email}
+                     className={classes.textField}
+                     margin="normal"
+                     variant="outlined"
+                  />
+                  <TextField
+                     id="outlined-name"
+                     label='location'
+                     className={classes.textField}
+                     value={location}
+                     onChange={event => setLoc(event.target.value)}
+                     margin="normal"
+                     variant="outlined"
+                  />
+                  <Button
+                     variant="contained"
+                     color="secondary"
+                     size='large'
+                     className={classes.button}
+                     type="submit">
+                     Save
                   </Button>
-                  </form>
-               </ExpansionPanelDetails>
-            </ExpansionPanel>
-         </div>
+               </form>
+            </ExpansionPanelDetails>
+         </ExpansionPanel>
       </div>
    )
 }
