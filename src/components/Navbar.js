@@ -41,24 +41,26 @@ const useStyles = makeStyles(theme => ({
          width: 200,
       },
    },
-   sectionDesktop: {
-      display: 'none',
-      [theme.breakpoints.up('md')]: {
-         display: 'flex',
-      },
+   menuButton: {
+      marginLeft: theme.spacing(1),
    },
-   sectionMobile: {
-      display: 'flex',
-      [theme.breakpoints.up('md')]: {
-         display: 'none',
-      },
-   },
+   // sectionDesktop: {
+   //    display: 'none',
+   //    [theme.breakpoints.up('md')]: {
+   //       display: 'flex',
+   //    },
+   // },
+   // sectionMobile: {
+   //    display: 'flex',
+   //    [theme.breakpoints.up('md')]: {
+   //       display: 'none',
+   //    },
+   // },
 }))
 
 const Navbar = ({ popmenu, searchNews }) => {
 
    const classes = useStyles();
-
    const [search, setSearch] = useState('')
 
    const handleChange = event => {

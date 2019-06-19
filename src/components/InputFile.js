@@ -66,7 +66,6 @@ const InputNews = ({ handleFile }) => {
          />
          <label htmlFor="outlined-button-file">
             <Fab
-               variant="contained"
                color="secondary"
                component="span"
                className={classes.button}>
@@ -84,6 +83,5 @@ const InputNews = ({ handleFile }) => {
       </form>
    );
 }
-
 
 export default InputNews;

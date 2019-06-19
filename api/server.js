@@ -44,10 +44,22 @@ const getUrl = (newsUrl, callback) => {
 
 }
 
+const insertTags = (db, uid, tags) => {
+   const users = db.collection('users')
+   users.updateOne(
+      { uid: uid },
+      {
+         $push: { tags: { $each: tags } }
+      },
+      { upsert: true }
+   )
+}
+
 const insertNews = function (db, news, callback) {
    const collection = db.collection('news')
    getTags(news.title)
       .then(data => {
+         insertTags(db, news.uid, data)
          collection.insertOne({
             uid: news.uid,
             title: news.title,
@@ -67,15 +79,16 @@ const insertNews = function (db, news, callback) {
 
 const insertUser = function (db, user, callback) {
    const collection = db.collection('users')
+   console.log(user)
    collection.updateOne(
       { uid: user.uid },
       {
          $set: {
             displayName: user.displayName,
             email: user.email,
-            photoURL: user.photoURL,
+            photoUrl: user.photoUrl,
             location: user.location,
-            follow: []
+            follow: [],
          }
       },
       { upsert: true },
@@ -119,13 +132,13 @@ const likeNews = function (db, uid, nid, callback) {
       { returnOriginal: false },
       function (err, result) {
          assert.equal(err, null)
+         insertTags(db, uid, result.value.tags)
          callback(result)
       }
    )
 }
 
 const likePost = function (db, pid, uid, callback) {
-   console.log(pid, uid)
    const collection = db.collection('posts')
    collection.findOneAndUpdate(
       { _id: ObjectId(pid) },

@@ -56,19 +56,23 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
          .then(res => setPosts(res.data))
          .catch(err => console.log(err))
 
-   const updatePost = pid =>
+   const updatePost = pid => {
       axios.patch(`${url}/posts?pid=${pid}&uid=${userId}`)
          .then(res => {
             const likedPost = res.data.value
-            const altPosts = posts.filter(post => post._id !== likedPost._id)
-            altPosts.unshift(likedPost)
-            setPosts(altPosts)
+            const postMap = posts.map(p =>
+               p._id === likedPost._id
+                  ? p = likedPost
+                  : p
+            )
+            setPosts(postMap)
          })
+   }
 
    const postPost = post =>
       axios.post(url + '/posts/new', post)
          .then(res => res.data.ops[0])
-         .then(post => setPosts([...posts, post]))
+         .then(post => setPosts([post, ...posts]))
          .catch(err => console.log(err))
 
    const handleEnter = e => {
@@ -82,6 +86,9 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
          postPost(post)
       }
    }
+
+   const handleChange = e =>
+      console.log('file uploaded')
 
    return (
       <div className='postbox' ref={node}>
@@ -102,10 +109,10 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
             id="outlined-button-file"
             type="file"
             ref={file}
+            onChange={e => handleChange(e)}
          />
          <label htmlFor="outlined-button-file">
             <Fab
-               variant="contained"
                size="small"
                color="secondary"
                component="span"
@@ -122,6 +129,5 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
 
       </div>)
 }
-
 
 export default PostBox

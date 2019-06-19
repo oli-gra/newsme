@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import * as firebase from 'firebase/app'
 
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
@@ -8,14 +9,16 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import AcountBoxIcon from '@material-ui/icons/AccountBox'
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount'
 import FavoriteIcon from '@material-ui/icons/FavoriteBorder'
+import SubjectIcon from '@material-ui/icons/Subject'
 import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Badge from '@material-ui/core/Badge'
-
+import Avatar from '@material-ui/core/Avatar';
+import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
@@ -26,11 +29,27 @@ const useStyles = makeStyles(theme => ({
    button: {
       margin: theme.spacing(1),
    },
+   input: {
+      display: 'none',
+   },
    heading: {
       marginTop: theme.spacing(1),
    },
+   profile: {
+      width: '60%',
+   },
+   profilecontainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
+   wrapper: {
+      display: 'flex',
+      justifyContent: 'space-between',
+   },
    column: {
-
+      minWidth: '10%',
    },
 }))
 
@@ -44,18 +63,21 @@ const Profile = ({ fuser, postUser, getLikes }) => {
    const [email, setEmail] = useState('')
    const [location, setLoc] = useState('')
    const [photoUrl, setPic] = useState('')
-   const [likes, setLikes] = useState('')
+   const [likes, setLikes] = useState([])
+   const [tags, setTags] = useState([])
+
+   const file = React.useRef()
 
    useEffect(() => {
-
       axios.get(url + '/user?uid=' + fuser.uid)
          .then(res => {
+            console.log(res)
             setName(res.data.displayName)
             setEmail(fuser.email)
             setLoc(res.data.location)
             setPic(res.data.photoUrl)
+            setTags(res.data.tags)
          })
-
       getLikes()
          .then(res => setLikes(res.data.likes))
          .catch(err => console.log(err))
@@ -63,52 +85,100 @@ const Profile = ({ fuser, postUser, getLikes }) => {
 
    const saveInput = e => {
       e.preventDefault()
-      let user = {
-         uid: fuser.uid,
-         displayName: displayName,
-         email: email,
-         location: location,
-         photoUrl: photoUrl,
+      if (file.current.files[0]) {
+         const storageRef = firebase.storage().ref()
+         const imageRef = storageRef.child(file.current.files[0].name)
+         imageRef.put(file.current.files[0])
+            .then(() => console.log(`✅ uploaded ${imageRef.fullPath}`))
+            .then(() => storageRef.child(file.current.files[0].name).getDownloadURL())
+            .then(url => {
+               console.log(url)
+               let user = {
+                  uid: fuser.uid,
+                  displayName: displayName,
+                  email: email,
+                  location: location,
+                  photoUrl: url,
+               }
+               postUser(user)
+            })
       }
-      postUser(user)
    }
 
+
+
+   const handleDelete = () => {
+
+   }
+   let avatar
+   if (photoUrl === '') {
+      avatar = <><input
+         accept="image/*"
+         className={classes.input}
+         id="outlined-button-file"
+         type="file"
+         ref={file}
+      />
+         <label htmlFor="outlined-button-file">
+            <Fab
+               size="large"
+               color="secondary"
+               component="span"
+               className={classes.button}><AddIcon />
+            </Fab>
+         </label></>
+   }
+   else { avatar = <Avatar><img src={photoUrl} alt='avatar' /></Avatar> }
+
+
    return (
-      <div className='profilecontainer'>
-         <Card className='profile'>
-            <div className={classes.heading}>
+      <div className={classes.profilecontainer}>
+         <Card className={classes.profile}>
+            <div>
                <Typography className={classes.heading}>Personal stats</Typography>
             </div>
-            <div className={classes.column}>
-               <div className={classes.avatar}>
-                  {photoUrl !== '' ?
-                     <Fab
-                        color="secondary"
-                        aria-label="Add"
-                        className={classes.button}>
-                        <AddIcon />
-                     </Fab> : <img src={photoUrl} alt='avatar' />}
-               </div>
-               <div className={classes.details}>
-                  <CardContent>
-                     <span className={classes.button}>
-                        <Badge
-                           badgeContent={likes}
-                           color="secondary">
-                           <FavoriteIcon /></Badge>
-                     </span>
-                     <span className={classes.button}>
-                        <Badge
-                           badgeContent={null}
-                           color="secondary">
-                           <AcountBoxIcon /></Badge>
-                     </span>
-                  </CardContent>
-               </div>
+            <div className={classes.wrapper}>
+               <CardContent className={classes.column}>
+                  {avatar}
+               </CardContent>
+               <CardContent className={classes.column}>
+                  <div className={classes.button}>
+
+                     <Badge
+                        badgeContent={likes}
+                        color="secondary">
+                        <FavoriteIcon /></Badge>
+                     <span className={classes.textField}>likes</span>
+                  </div>
+                  <div className={classes.button}>
+                     <Badge
+                        badgeContent={null}
+                        color="secondary">
+                        <SupervisorAccountIcon /></Badge>
+                     <span className={classes.textField}>follows</span>
+                  </div>
+                  <div className={classes.button}>
+                     <Badge
+                        badgeContent={null}
+                        color="secondary">
+                        <SubjectIcon /></Badge>
+                     <span className={classes.textField}>blasts</span>
+                  </div>
+               </CardContent>
+               <CardContent className={classes.column}>
+                  {tags.map(tag => <Chip
+                     key={tag}
+                     label={tag}
+                     onDelete={handleDelete}
+                     className={classes.chip}
+                     color="secondary"
+                  />)}
+               </CardContent>
             </div>
          </Card>
 
-         <ExpansionPanel defaultExpanded className='profile'>
+         <ExpansionPanel className={classes.profile}>
+
             <ExpansionPanelSummary
                expandIcon={<ExpandMoreIcon />}
                aria-controls="panel1c-content"
@@ -116,9 +186,9 @@ const Profile = ({ fuser, postUser, getLikes }) => {
                className='profilerow'>
                <Typography className={classes.heading}>Personal info</Typography>
             </ExpansionPanelSummary>
+
             <ExpansionPanelDetails className='profilecolumn'>
                <form onSubmit={saveInput}>
-                  <div>{photoUrl}</div>
                   <TextField
                      id="outlined-name"
                      label='name'

@@ -22,13 +22,15 @@ const Post = ({ post, getNews, updatePost, numPosts }) => {
    const classes = useStyles();
 
    const [expanded, setExpanded] = React.useState(null);
+
    const handleChange = panel => (event, newExpanded) => {
-      setExpanded(newExpanded ? panel : false);
+      setExpanded(newExpanded ? panel : 0);
    }
 
    let icon
    let dots
    let summary
+
    if (post.content.length > 50) {
       icon = <ExpandMoreIcon />
       dots = '...'
@@ -46,7 +48,7 @@ const Post = ({ post, getNews, updatePost, numPosts }) => {
    useEffect(() => {
       const handleClick = e => {
          if (!node.current.contains(e.target)) {
-            setExpanded(false)
+            setExpanded(null)
          }
       }
       document.addEventListener("mousedown", handleClick)

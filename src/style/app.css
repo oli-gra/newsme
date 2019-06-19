@@ -1,3 +1,6 @@
+#root{
+   overflow: auto;
+}
 
 .navbar {
    display:flex;
@@ -40,16 +43,6 @@
    box-shadow: 0 20px 40px -14px rgba(0,0,0,0.25);
 }
 
-.shadow {
-   position: absolute;
-   top: 0; right: 0; bottom: 0; left: 0;
-  background:
-       linear-gradient(
-         rgba(0, 0, 0, 0.4),
-         rgba(0, 0, 0, 0.4)
-       );
-}
-
 .newscardtitle {
    flex:1;
    height: 100%;
@@ -88,17 +81,8 @@
    max-width:300px;
    width:20%;
    position: fixed;
-   z-index:2;
+   z-index:5;
    box-shadow: 1px 1px 3px rgba(4, 1, 1, 0.5);
-}
-
-.profile{
-   width: 60%;
-   margin: 4em;
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
 }
 
 .profilecontainer{

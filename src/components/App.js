@@ -9,7 +9,6 @@ import axios from 'axios'
 import withFirebaseAuth from 'react-with-firebase-auth'
 import * as firebase from 'firebase/app'
 import 'firebase/auth'
-// import "firebase/firestore"
 import 'firebase/storage'
 import config from '../config'
 
@@ -54,21 +53,20 @@ const App = ({ user, signOut }) => {
   const [postbox, setPostbox] = useState(false)
   const [newsposts, setNewsposts] = useState(null)
   const [popmenu, setPopmenu] = useState(false)
-  const [fetched, setFetched] = useState(false)
   const [found, setFound] = useState([])
 
   const email = window.localStorage.getItem('emailForSignIn')
 
+  useEffect(() => {
+    if (user) {
+      axios.get(url + '/news?uid=' + user.uid)
+        .then(res => setNews(res.data))
+    }
+  }, [user])
+
   const getNews = () =>
     axios.get(url + '/news?uid=' + user.uid)
       .then(res => setNews(res.data))
-
-  useEffect(() => {
-    if (user && !fetched) {
-      setFetched(true)
-      getNews()
-    }
-  }, [user, fetched, getNews])
 
   const postUser = puser => {
     if (!puser) {
@@ -95,18 +93,25 @@ const App = ({ user, signOut }) => {
       .then(() => navigate('/'))
       .catch(error => console.log(error))) {
     }
-  }, [email, postUser])
+  }, [email])
 
   const getLikes = () =>
     axios.get(`${url}/likes?uid=${user.uid}`)
 
 
   // like news
-  const updateNews = nid => {
-    let uid = user.uid
-    axios.patch(url + '/news?uid=' + uid + '&nid=' + nid)
+  const updateNews = nid =>
+    axios.patch(url + '/news?uid=' + user.uid + '&nid=' + nid)
+      .then(res => {
+        const likedNews = res.data.value
+        setNews(news.map(n =>
+          n._id === likedNews._id
+            ? n = likedNews
+            : n
+        ))
+      })
       .catch(err => console.log(err))
-  }
+
 
   const searchNews = search => {
     axios.get(url + `/search?q=${search}`)
@@ -139,13 +144,12 @@ const App = ({ user, signOut }) => {
     const imageRef = storageRef.child(file.name)
     imageRef.put(file)
       .then(() => console.log(`✅ uploaded ${imageRef.fullPath}`))
-      .then(() => storageRef.child(file.name).getDownloadURL()
-        .then(url => postNews({
-          title: title,
-          image: url,
-          uid: user.uid
-        })
-        ))
+      .then(() => storageRef.child(file.name).getDownloadURL())
+      .then(url => postNews({
+        title: title,
+        image: url,
+        uid: user.uid
+      }))
     return navigate('/')
   }
 
@@ -154,7 +158,6 @@ const App = ({ user, signOut }) => {
       .then(() => window.localStorage.setItem('emailForSignIn', email))
       .then(() => navigate('/'))
       .catch(error => console.log(error))
-
   }
 
   const handlePostBox = newsId => {
