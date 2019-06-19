@@ -33,7 +33,8 @@ const useStyles = makeStyles(theme => ({
       display: 'none',
    },
    heading: {
-      marginTop: theme.spacing(1),
+      marginLeft: theme.spacing(3),
+      marginTop: theme.spacing(2),
    },
    profile: {
       width: '60%',
@@ -44,6 +45,10 @@ const useStyles = makeStyles(theme => ({
       alignItems: 'center',
       justifyContent: 'center',
    },
+   avatar: {
+      width: '4em',
+      height: '4em',
+   },
    wrapper: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -51,6 +56,10 @@ const useStyles = makeStyles(theme => ({
    column: {
       minWidth: '10%',
    },
+   row: {
+      display: 'flex',
+      flexDirection: 'row',
+   }
 }))
 
 const Profile = ({ fuser, postUser, getLikes }) => {
@@ -128,42 +137,18 @@ const Profile = ({ fuser, postUser, getLikes }) => {
             </Fab>
          </label></>
    }
-   else { avatar = <Avatar><img src={photoUrl} alt='avatar' /></Avatar> }
+   else { avatar = <Avatar className={classes.avatar}><img src={photoUrl} alt='avatar' /></Avatar> }
 
 
    return (
       <div className={classes.profilecontainer}>
          <Card className={classes.profile}>
             <div>
-               <Typography className={classes.heading}>Personal stats</Typography>
+               <Typography className={classes.heading}>stats</Typography>
             </div>
             <div className={classes.wrapper}>
                <CardContent className={classes.column}>
                   {avatar}
-               </CardContent>
-               <CardContent className={classes.column}>
-                  <div className={classes.button}>
-
-                     <Badge
-                        badgeContent={likes}
-                        color="secondary">
-                        <FavoriteIcon /></Badge>
-                     <span className={classes.textField}>likes</span>
-                  </div>
-                  <div className={classes.button}>
-                     <Badge
-                        badgeContent={null}
-                        color="secondary">
-                        <SupervisorAccountIcon /></Badge>
-                     <span className={classes.textField}>follows</span>
-                  </div>
-                  <div className={classes.button}>
-                     <Badge
-                        badgeContent={null}
-                        color="secondary">
-                        <SubjectIcon /></Badge>
-                     <span className={classes.textField}>blasts</span>
-                  </div>
                </CardContent>
                <CardContent className={classes.column}>
                   {tags.map(tag => <Chip
@@ -175,6 +160,30 @@ const Profile = ({ fuser, postUser, getLikes }) => {
                   />)}
                </CardContent>
             </div>
+            <CardContent className={classes.row}>
+               <div className={classes.button}>
+
+                  <Badge
+                     badgeContent={likes}
+                     color="secondary">
+                     <FavoriteIcon /></Badge>
+                  <span className={classes.textField}>likes</span>
+               </div>
+               <div className={classes.button}>
+                  <Badge
+                     badgeContent={null}
+                     color="secondary">
+                     <SupervisorAccountIcon /></Badge>
+                  <span className={classes.textField}>follows</span>
+               </div>
+               <div className={classes.button}>
+                  <Badge
+                     badgeContent={null}
+                     color="secondary">
+                     <SubjectIcon /></Badge>
+                  <span className={classes.textField}>blasts</span>
+               </div>
+            </CardContent>
          </Card>
 
          <ExpansionPanel className={classes.profile}>
@@ -184,7 +193,7 @@ const Profile = ({ fuser, postUser, getLikes }) => {
                aria-controls="panel1c-content"
                id="panel1c-header"
                className='profilerow'>
-               <Typography className={classes.heading}>Personal info</Typography>
+               <Typography>private</Typography>
             </ExpansionPanelSummary>
 
             <ExpansionPanelDetails className='profilecolumn'>

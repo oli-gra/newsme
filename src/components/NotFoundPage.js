@@ -1,10 +1,8 @@
 import React from 'react'
-import Login from './Login'
 
 const NotFoundPage = ({ user, handleLogin }) =>
    <>
-
-      {user && user.validEmail ? <><h1>Loading...</h1></> : <Login handleLogin={handleLogin} />}
+      <h1>not found</h1>
    </>
 
 export default NotFoundPage

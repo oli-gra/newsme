@@ -227,9 +227,6 @@ const App = ({ user, signOut }) => {
       '/login': () => <Login
         handleLogin={handleLogin}
       />,
-      '/': () => <NotFoundPage
-        handleLogin={handleLogin}
-        user={user} />
     }
   }
 
@@ -240,9 +237,7 @@ const App = ({ user, signOut }) => {
       {navbarComponent}
       {postboxComponent}
       {popmenuComponent}
-      {routeResult || <NotFoundPage
-        handleLogin={handleLogin}
-        user={user} />}
+      {routeResult || <NotFoundPage />}
     </>
   )
 }

@@ -1,9 +1,13 @@
 import React from 'react'
 import Button from '@material-ui/core/Button'
 import Fab from '@material-ui/core/Fab';
-import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField'
+import CheckIcon from '@material-ui/icons/Check';
+import SaveIcon from '@material-ui/icons/Save';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { green } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles'
+
 
 const useStyles = makeStyles(theme => ({
    container: {
@@ -23,6 +27,13 @@ const useStyles = makeStyles(theme => ({
    button: {
       margin: theme.spacing(1),
    },
+   fabProgress: {
+      color: green[500],
+      position: 'absolute',
+      top: -6,
+      left: -6,
+      zIndex: 1,
+   },
    input: {
       display: 'none',
    },
@@ -32,14 +43,17 @@ const InputNews = ({ handleFile }) => {
 
    const classes = useStyles()
 
+   const [success, setSuccess] = React.useState(false);
+
+   const file = React.useRef()
+   let title = React.useRef()
+
    const handleSubmit = e => {
       e.preventDefault()
       handleFile(file.current.files[0], title)
       e.target.reset()
    }
 
-   const file = React.useRef()
-   let title = React.useRef()
 
    return (
       <form
@@ -62,14 +76,18 @@ const InputNews = ({ handleFile }) => {
             className={classes.input}
             id="outlined-button-file"
             type="file"
+            onChange={() => file.current.files[0] ? setSuccess(true) : <CircularProgress size={68} className={classes.fabProgress} />
+            }
             ref={file}
          />
          <label htmlFor="outlined-button-file">
+
             <Fab
-               color="secondary"
+               aria-label="Save"
+               color={success ? 'default' : 'secondary'}
                component="span"
                className={classes.button}>
-               <AddIcon />
+               {success ? <CheckIcon /> : <SaveIcon />}
             </Fab>
             <Button
                variant="contained"
