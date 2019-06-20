@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/oli-gra/newsme/static/css/main.618a1940.chunk.css",
+    "main.js": "/oli-gra/newsme/static/js/main.3be610d6.chunk.js",
+    "main.js.map": "/oli-gra/newsme/static/js/main.3be610d6.chunk.js.map",
+    "runtime~main.js": "/oli-gra/newsme/static/js/runtime~main.ce17afee.js",
+    "runtime~main.js.map": "/oli-gra/newsme/static/js/runtime~main.ce17afee.js.map",
+    "static/js/2.5b10c1cb.chunk.js": "/oli-gra/newsme/static/js/2.5b10c1cb.chunk.js",
+    "static/js/2.5b10c1cb.chunk.js.map": "/oli-gra/newsme/static/js/2.5b10c1cb.chunk.js.map",
+    "index.html": "/oli-gra/newsme/index.html",
+    "precache-manifest.b28c5d50ae645818e5e21af83ff290d5.js": "/oli-gra/newsme/precache-manifest.b28c5d50ae645818e5e21af83ff290d5.js",
+    "service-worker.js": "/oli-gra/newsme/service-worker.js",
+    "static/css/main.618a1940.chunk.css.map": "/oli-gra/newsme/static/css/main.618a1940.chunk.css.map"
+  }
+}
