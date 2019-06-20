@@ -63,9 +63,20 @@ const App = ({ user, signOut }) => {
     }
   }, [user])
 
+  const getBlasts = () =>
+    axios.get(`${url}/blasts?uid=${user.uid}`)
+
   const getNews = () =>
     axios.get(url + '/news?uid=' + user.uid)
       .then(res => setNews(res.data))
+
+  const followUser = fid => {
+    axios.post(`${url}/follows?uid=${user.uid}&fid=${fid}`)
+  }
+
+  const getFollows = () =>
+    axios.get(`${url}/follows?uid=${user.uid}`)
+
 
   const postUser = puser => {
     if (!puser) {
@@ -119,12 +130,12 @@ const App = ({ user, signOut }) => {
 
   const postNews = news =>
     axios.post(url + '/news', news)
-      .then(res => setNews([...news, res.data.ops[0]]))
+      .then(res => setNews([res.data.ops[0], ...news]))
       .catch(err => console.log(err))
 
   const postUrl = newsUrl =>
     axios.post(url + `/news/url?url=${newsUrl}&uid=${user.uid}`)
-      .then(res => setNews([...news, res.data.ops[0]]))
+      .then(res => setNews([res.data.ops[0], ...news]))
       .catch(err => console.log(err))
 
   const getUsersNews = uid =>
@@ -198,6 +209,7 @@ const App = ({ user, signOut }) => {
   if (user) {
     routes = {
       '/': () => <News
+        followUser={followUser}
         getNews={getUsersNews}
         news={showNews}
         handlePostBox={handlePostBox}
@@ -210,6 +222,8 @@ const App = ({ user, signOut }) => {
         postUser={postUser}
         fuser={user}
         getLikes={getLikes}
+        getFollows={getFollows}
+        getBlasts={getBlasts}
       />,
       '/new': () => <AddNews
         handleUrl={handleUrl}

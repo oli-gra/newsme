@@ -23,7 +23,7 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
    textField: {
-      marginLeft: theme.spacing(1),
+      marginLeft: theme.spacing(2),
       marginRight: theme.spacing(1),
    },
    button: {
@@ -62,7 +62,7 @@ const useStyles = makeStyles(theme => ({
    }
 }))
 
-const Profile = ({ fuser, postUser, getLikes }) => {
+const Profile = ({ fuser, postUser, getLikes, getFollows, getBlasts }) => {
 
    const classes = useStyles()
 
@@ -74,6 +74,8 @@ const Profile = ({ fuser, postUser, getLikes }) => {
    const [photoUrl, setPic] = useState('')
    const [likes, setLikes] = useState([])
    const [tags, setTags] = useState([])
+   const [follows, setFollows] = useState([])
+   const [blasts, setBlasts] = useState([])
 
    const file = React.useRef()
 
@@ -87,10 +89,20 @@ const Profile = ({ fuser, postUser, getLikes }) => {
             setPic(res.data.photoUrl)
             setTags(res.data.tags)
          })
+
+      getFollows()
+         .then(res => setFollows(res.data.follows))
+         .catch(err => console.log(err))
+
+      getBlasts()
+         .then(res => setBlasts(res.data.blasts))
+         .catch(err => console.log(err))
+
       getLikes()
          .then(res => setLikes(res.data.likes))
          .catch(err => console.log(err))
-   }, [getLikes, fuser.email, fuser.uid])
+   }, [getLikes, fuser.email, fuser.uid, getFollows, getBlasts])
+
 
    const saveInput = e => {
       e.preventDefault()
@@ -114,13 +126,11 @@ const Profile = ({ fuser, postUser, getLikes }) => {
       }
    }
 
-
-
    const handleDelete = () => {
 
    }
    let avatar
-   if (photoUrl === '') {
+   if (!photoUrl) {
       avatar = <><input
          accept="image/*"
          className={classes.input}
@@ -137,8 +147,12 @@ const Profile = ({ fuser, postUser, getLikes }) => {
             </Fab>
          </label></>
    }
-   else { avatar = <Avatar className={classes.avatar}><img src={photoUrl} alt='avatar' /></Avatar> }
-
+   else {
+      avatar =
+         <Avatar className={classes.avatar}>
+            <img src={photoUrl} alt='avatar' />
+         </Avatar>
+   }
 
    return (
       <div className={classes.profilecontainer}>
@@ -171,14 +185,14 @@ const Profile = ({ fuser, postUser, getLikes }) => {
                </div>
                <div className={classes.button}>
                   <Badge
-                     badgeContent={null}
+                     badgeContent={follows}
                      color="secondary">
                      <SupervisorAccountIcon /></Badge>
                   <span className={classes.textField}>follows</span>
                </div>
                <div className={classes.button}>
                   <Badge
-                     badgeContent={null}
+                     badgeContent={blasts}
                      color="secondary">
                      <SubjectIcon /></Badge>
                   <span className={classes.textField}>blasts</span>

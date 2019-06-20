@@ -21,7 +21,6 @@ const useStyles = makeStyles(theme => ({
    },
 }))
 
-
 const Post = ({ post, getNews, updatePost, numPosts }) => {
    const classes = useStyles();
 

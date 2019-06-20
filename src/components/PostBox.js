@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import * as firebase from 'firebase/app'
 
-
 import Post from './Post'
 import TextField from '@material-ui/core/TextField'
 import Fab from '@material-ui/core/Fab';
@@ -84,7 +83,7 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
    }
 
 
-   const postFile = post => {
+   const postFile = () => {
       if (file.current.files[0]) {
          const storageRef = firebase.storage().ref()
          const imageRef = storageRef.child(file.current.files[0].name)

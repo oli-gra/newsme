@@ -63,6 +63,17 @@ const insertTags = (db, uid, tags) => {
    )
 }
 
+const insertFollow = (db, uid, fid) => {
+   const users = db.collection('users')
+   users.updateOne(
+      { uid: uid },
+      {
+         $push: { follow: fid }
+      },
+      { upsert: true }
+   )
+}
+
 const insertNews = function (db, news, callback) {
    const collection = db.collection('news')
    getTags(news.title)
@@ -161,7 +172,12 @@ const likePost = function (db, pid, uid, callback) {
 
 const findNews = function (db, user, callback) {
    const collection = db.collection('news')
-   collection.find({ uid: user.uid })
+   collection.find({
+      $or: [
+         { uid: user.uid },
+         { likes: `${user.uid}` }
+      ]
+   })
       .toArray(function (err, docs) {
          assert.equal(err, null)
          callback(docs)
@@ -210,6 +226,18 @@ const countPostLikes = function (db, uid, likes, callback) {
    ]).toArray(function (err, docs) {
       assert.equal(err, null)
       callback(docs.map(doc => doc.likes).reduce((a, b) => a + b))
+   })
+}
+
+const countFollows = function (db, uid, callback) {
+   const users = db.collection('users')
+   users.find({
+      $or: [
+         { follow: `${uid}` }
+      ]
+   }).toArray(function (err, docs) {
+      assert.equal(err, null)
+      callback(docs)
    })
 }
 
@@ -342,6 +370,25 @@ client.connect(err => {
             res.send({ "likes": `${newslikes + postlikes}` })
          })
       })
+   })
+
+   app.get('/follows', (req, res) => {
+      countFollows(db, req.query.uid, follows => {
+         res.send({ "follows": `${follows.length}` })
+         res.status(200)
+      })
+   })
+
+   app.get('/blasts', (req, res) => {
+      findNews(db, req.query, news => {
+         res.send({ "blasts": `${news.length}` })
+         res.status(200)
+      })
+   })
+
+   app.post('/follows', (req, res) => {
+      insertFollow(db, req.query.uid, req.query.fid)
+      res.status(200)
    })
 
    app.listen(PORT, () => {
