@@ -7,7 +7,7 @@ const { MongoClient, ObjectId } = require('mongodb')
 const axios = require('axios')
 
 // load Aylien concept extraction NLP
-const secrets = require('../secrets')
+const secrets = require('./secrets')
 const AYLIENTextAPI = require('aylien_textapi')
 const tag = new AYLIENTextAPI({
    application_id: secrets.aylienId,
@@ -16,10 +16,18 @@ const tag = new AYLIENTextAPI({
 
 // server settings
 const app = express()
-const PORT = 3003
+if (process.env.NODE_ENV === 'production') {
+   app.use(express.static('client/build/'))
+   app.get('*', (req, res) => {
+      res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+   })
+}
+
+const PORT = process.env.PORT || 3003
 const url = secrets.uri
 const dbName = 'newsme'
-const client = new MongoClient(url, { useNewUrlParser: true })
+const client = new MongoClient(process.env.MONGODB_URI || url,
+   { useNewUrlParser: true })
 
 const getTags = (text) => {
    return new Promise((resolve, reject) =>
