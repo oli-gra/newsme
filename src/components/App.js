@@ -25,7 +25,6 @@ import Login from './Login'
 import PostBox from './PostBox'
 import PopMenu from './PopMenu'
 import NotFoundPage from './NotFoundPage'
-import GetLink from './GetLink'
 
 // Import style
 import '../style/app.css'
@@ -85,7 +84,7 @@ const App = ({ user, signOut }) => {
 
   useEffect(() => {
     if (!email && firebase.auth().isSignInWithEmailLink(window.location.href)) {
-      return navigate('/login')
+      return navigate('/')
     }
     if (email && firebase.auth().signInWithEmailLink(email, window.location.href)
       .then(() => window.localStorage.removeItem('emailForSignIn'))
@@ -191,9 +190,7 @@ const App = ({ user, signOut }) => {
       signOut={signOut}
     />
   }
-  if (email && !user) {
-    getlinkComponent = <GetLink />
-  }
+
   found.length > 0 ? showNews = found : showNews = news
 
   // Routing               <- BLOCK ->
@@ -224,7 +221,7 @@ const App = ({ user, signOut }) => {
       popmenu={handlePopMenu} />
   } else {
     routes = {
-      '/login': () => <Login
+      '/': () => <Login
         handleLogin={handleLogin}
       />,
     }
@@ -237,7 +234,7 @@ const App = ({ user, signOut }) => {
       {navbarComponent}
       {postboxComponent}
       {popmenuComponent}
-      {routeResult || <NotFoundPage />}
+      {routeResult || <NotFoundPage user={user} />}
     </>
   )
 }

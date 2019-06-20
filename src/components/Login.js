@@ -4,7 +4,6 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 const useStyles = makeStyles(theme => ({
@@ -43,6 +42,7 @@ const Login = ({ handleLogin }) => {
    const handleChange = e => {
       setEmail(e.target.value)
       if (e.keyCode === 13 && email) {
+         setValid(true)
          handleLogin(email)
       }
    }
@@ -50,6 +50,7 @@ const Login = ({ handleLogin }) => {
    const handleSubmit = e => {
       e.preventDefault()
       if (email) {
+         setValid(true)
          handleLogin(email)
       }
    }

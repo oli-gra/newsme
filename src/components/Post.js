@@ -15,6 +15,10 @@ const useStyles = makeStyles(theme => ({
    root: {
       backgroundColor: 'transparent',
    },
+   img: {
+      minWidth: '100%',
+      maxHeight: '40vh',
+   },
 }))
 
 
@@ -22,28 +26,11 @@ const Post = ({ post, getNews, updatePost, numPosts }) => {
    const classes = useStyles();
 
    const [expanded, setExpanded] = React.useState(null);
+   const node = React.useRef()
 
    const handleChange = panel => (event, newExpanded) => {
       setExpanded(newExpanded ? panel : 0);
    }
-
-   let icon
-   let dots
-   let summary
-
-   if (post.content.length > 50) {
-      icon = <ExpandMoreIcon />
-      dots = '...'
-   }
-   if (expanded !== post.id) {
-      summary = <ExpansionPanelSummary
-         expandIcon={icon}
-         className='postheader'
-      >{post.content.slice(0, 40)}{dots}
-      </ExpansionPanelSummary>
-   }
-
-   const node = React.useRef()
 
    useEffect(() => {
       const handleClick = e => {
@@ -57,6 +44,26 @@ const Post = ({ post, getNews, updatePost, numPosts }) => {
       }
    }, [])
 
+   let icon
+   let dots
+   let summary
+   let content
+   if (post.content.startsWith('https')) {
+      console.log('true')
+      content = <img className={classes.img} src={post.content} alt={post.content} />
+   } else { content = <>{post.content}</> }
+   if (post.content.length > 50) {
+      icon = <ExpandMoreIcon />
+      dots = '...'
+   }
+   if (expanded !== post.id) {
+      summary = <ExpansionPanelSummary
+         expandIcon={icon}
+         className='postheader'
+      >{post.content.slice(0, 40)}{dots}
+      </ExpansionPanelSummary>
+   }
+
    return (
       <ExpansionPanel
          ref={node}
@@ -66,7 +73,7 @@ const Post = ({ post, getNews, updatePost, numPosts }) => {
          expanded={expanded === post.id}>
          {summary}
          <ExpansionPanelDetails className='postcontent'>
-            {post.content}
+            {content}
          </ExpansionPanelDetails>
          <div className='postlikes'>
             <BottomNavigation

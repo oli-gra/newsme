@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import * as firebase from 'firebase/app'
+
 
 import Post from './Post'
 import TextField from '@material-ui/core/TextField'
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
@@ -33,7 +36,6 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
 
    const node = React.useRef()
    const file = React.useRef()
-
 
    useEffect(() => {
       const handleClick = e => {
@@ -69,26 +71,39 @@ const PostBox = ({ newsId, userId, handlePostBox, getNews }) => {
          })
    }
 
-   const postPost = post =>
-      axios.post(url + '/posts/new', post)
+   const postPost = content => {
+      let post = {
+         content: content,
+         uid: userId,
+         nid: newsId,
+      }
+      return axios.post(url + '/posts/new', post)
          .then(res => res.data.ops[0])
          .then(post => setPosts([post, ...posts]))
          .catch(err => console.log(err))
+   }
+
+
+   const postFile = post => {
+      if (file.current.files[0]) {
+         const storageRef = firebase.storage().ref()
+         const imageRef = storageRef.child(file.current.files[0].name)
+         imageRef.put(file.current.files[0])
+            .then(() => console.log(`✅ uploaded ${imageRef.fullPath}`))
+            .then(() => storageRef.child(file.current.files[0].name).getDownloadURL())
+            .then(url => { postPost(url) })
+      }
+   }
 
    const handleEnter = e => {
       if (e.keyCode === 13) {
-         let post = {
-            content: e.target.value,
-            uid: userId,
-            nid: newsId,
-         }
          setPost('')
-         postPost(post)
+         postPost(e.target.value)
       }
    }
 
    const handleChange = e =>
-      console.log('file uploaded')
+      postFile()
 
    return (
       <div className='postbox' ref={node}>

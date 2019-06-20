@@ -99,8 +99,8 @@ const Navbar = ({ popmenu, searchNews }) => {
          </div>
 
          <div className={classes.sectionDesktop}>
-            <IconButton aria-label="Show 17 new notifications" color="inherit">
-               <Badge badgeContent={17} color="secondary">
+            <IconButton aria-label="new notifications" color="inherit">
+               <Badge badgeContent={9} color="secondary">
                   <NotificationsIcon />
                </Badge>
             </IconButton>
