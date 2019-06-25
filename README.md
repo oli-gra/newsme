@@ -1,5 +1,5 @@
 ## newsme
-Social news for busy pros, link to or be the news, and be challenged.
+Social news for busy pros, link to or be the news, prepare to be challenged.
 
 - API built in Node, Express, and MongoDB
 - WebApp designed with React, Material UI, and Firebase Auth
@@ -10,7 +10,7 @@ Social news for busy pros, link to or be the news, and be challenged.
 
 - Components in seperate files for readability and reusability
 - Levereged power and efficiency of React Hooks
-- Responsiveness and Accessibility from Material UI
+- Responsiveness and <em>accessibility</em> from Material UI
 - MongoDB Node drivers for maximum performance
 - Routing managed by Express
 - APIs managed by Node = news scraping + auto tagging for thinner client
