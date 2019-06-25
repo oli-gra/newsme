@@ -5,28 +5,25 @@ const cors = require('cors')
 const assert = require('assert')
 const { MongoClient, ObjectId } = require('mongodb')
 const axios = require('axios')
+const path = require("path")
+require("dotenv").config()
 
 // load Aylien concept extraction NLP
-const secrets = require('./secrets')
 const AYLIENTextAPI = require('aylien_textapi')
 const tag = new AYLIENTextAPI({
-   application_id: secrets.aylienId,
-   application_key: secrets.aylienKey
+   application_id: process.env.aylienId || '3f8986e2',
+   application_key: process.env.aylienKey || '38fad21cfc8214953f171446db384f60'
 })
 
 // server settings
 const app = express()
-if (process.env.NODE_ENV === 'production') {
-   app.use(express.static('client/build/'))
-   app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-   })
-}
+// in charge of sending static files requests to the client
+app.use(express.static(path.join(__dirname, "client", "build")))
+
 
 const PORT = process.env.PORT || 3003
-const url = secrets.uri
 const dbName = 'newsme'
-const client = new MongoClient(process.env.MONGODB_URI || url,
+const client = new MongoClient(process.env.uri || 'mongodb+srv://admin:nagMf1981@cluster0-exit3.mongodb.net/newsme?retryWrites=true&w=majority',
    { useNewUrlParser: true })
 
 const getTags = (text) => {
@@ -46,7 +43,7 @@ const getTags = (text) => {
 }
 
 const getUrl = (newsUrl, callback) => {
-   const api = secrets.linkpreview
+   const api = process.env.linkpreview || '5cf66e9a3ee398f1413c110295f3ea61b667558c6f9b8'
    const url = `http://api.linkpreview.net/?key=${api}&q=${newsUrl}`
    axios.get(url).then(res => callback(res.data))
 
@@ -119,7 +116,6 @@ const insertUser = function (db, user, callback) {
 }
 
 const insertPost = function (db, post, callback) {
-   // Get the documents collection
    let collection = db.collection('posts')
    collection.insertOne(
       {
@@ -225,7 +221,9 @@ const countPostLikes = function (db, uid, likes, callback) {
       }
    ]).toArray(function (err, docs) {
       assert.equal(err, null)
-      callback(docs.map(doc => doc.likes).reduce((a, b) => a + b))
+      docs.length > 0
+         ? callback(docs.map(doc => doc.likes).reduce((a, b) => a + b))
+         : callback(0)
    })
 }
 
@@ -391,6 +389,9 @@ client.connect(err => {
       res.status(200)
    })
 
+   app.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+   })
    app.listen(PORT, () => {
       console.log(`✅ server is on port ${PORT} `)
    })
