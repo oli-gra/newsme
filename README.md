@@ -1,4 +1,5 @@
 ![main screenshot](screenshots/main.jpg)
+
 ## newsme
 Social news for busy pros, link to or be the news, prepare to be challenged.
 
