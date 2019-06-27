@@ -1,4 +1,4 @@
-![main screenshot](screenshots/main.png)
+![main screenshot](screenshots/main.jpg)
 ## newsme
 Social news for busy pros, link to or be the news, prepare to be challenged.
 
@@ -6,6 +6,8 @@ Social news for busy pros, link to or be the news, prepare to be challenged.
 - WebApp designed with React, Material UI, and Firebase Auth
 - Coded in ES6 using Babel
 - Designed with Sketch
+
+![features screenshot](screenshots/features.jpg)
 
 ## Features
 
