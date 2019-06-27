@@ -1,3 +1,4 @@
+![main screenshot]{screenshots/main.png}
 ## newsme
 Social news for busy pros, link to or be the news, prepare to be challenged.
 
@@ -23,8 +24,7 @@ Social news for busy pros, link to or be the news, prepare to be challenged.
 
 ### `npm start && nodemon server`
 
-Runs the app in development mode.<br>
-Opens [http://localhost:3000] in your default browser with Node hosted on post 3003.<br>
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
-
+- Runs the app in development mode
+- Opens [http://localhost:3000] in your default browser with Node hosted on post 3003
+- The page will reload if you make edits
+- You will also see any lint errors in the console
